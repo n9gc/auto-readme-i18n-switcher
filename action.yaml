@@ -1,0 +1,41 @@
+name: 'Readme i18n Switcher'
+description: 'Automatically generate a language switcher table in README.md based on translated README.*.md files. Without `git push`.'
+author: 'n9gc'
+
+inputs:
+    folder:
+        description: 'Folder of READMEs'
+        default: '.'
+        required: false
+    fileName:
+        description: 'The pattern of file name. RFC 6570.'
+        default: 'README.{lang}.md'
+        required: false
+    ignoredFolderNames:
+        description: 'Names of folders to be ignored in `folder`'
+        default: 'node_modules'
+        required: false
+    tag:
+        description: 'A piece of text that will be replaced by switcher generated'
+        default: '<!-- auto-readme-i18n-switcher-->'
+        required: false
+    switcherBody:
+        description: 'Template string for the framework of switcher. micromustache. all vars: `lines` the inner text of the switcher'
+        default: '| {{lines}} |'
+        required: false
+    switcherLine:
+        description: 'Template string for each language option of switcher. micromustache. all vars: `display` the localed language option to display, `filePath` the path of the readme, `folder` the folder of the readme, `lang` the text inside `{lang}` of the readme file.'
+        default: '[{{display}}]({{path}})'
+        required: false
+    switcherLineActive:
+        description: 'Template string for the language option of the readme now. micromustache.'
+        default: '{{display}}'
+        required: false
+    switcherSpliter:
+        description: 'Text used to separate each language option of the switcher'
+        default: ' | '
+        required: false
+
+runs:
+    using: 'node24'
+    main: 'dist.js'
