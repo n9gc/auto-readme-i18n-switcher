@@ -1,0 +1,68 @@
+{
+	"$schema": "https://json.schemastore.org/package",
+	"private": true,
+	"name": "root",
+	"description": "root",
+	"license": "MIT",
+	"author": "accurtype",
+	"repository": {
+		"url": "git+https://github.com/accurtype/monodemo",
+		"type": "git"
+	},
+	"type": "module",
+	"scripts": {
+		"prepare": "husky",
+		"cz": "czg",
+
+		"run-all": "pnpm -r --include-workspace-root run",
+
+		"fmt": "pnpm run-all --parallel /^fmt:.*/",
+		"fmt:js": "prettier -w . && eslint . --fix",
+		"fmt:rust": "cargo fmt && cargo clippy --fix --allow-dirty",
+
+		"lint": "pnpm run-all --parallel /^lint:.*/",
+		"lint:prettier": "prettier -c .",
+		"lint:eslint": "eslint .",
+		"lint:cargo": "cargo fmt --check",
+		"lint:clippy": "cargo clippy",
+
+		"test": "pnpm run-all /^test:.*/",
+		"test:ts": "tsc -b",
+		"test:rust": "cargo test",
+
+		"dev": "pnpm run-all --parallel /^dev:.*/",
+		"build": "pnpm run-all /^build:.*/",
+		"clear": "pnpm run-all --parallel /^clear:.*/",
+
+		"ci": "pnpm build && pnpm test && pnpm clear && pnpm lint"
+	},
+	"engines": {
+		"node": ">=22.18.0"
+	},
+	"devDependencies": {
+		"husky": "^9.*.*",
+
+		"@commitlint/cli": "^20.*.*",
+		"czg": "latest",
+
+		"eslint": "^10.0.0",
+		"prettier": "latest",
+
+		"rimraf": "latest",
+		"make-dir-cli": "latest",
+		"tsx": "latest",
+		"tinyglobby": "latest",
+		"esm-entry": "latest",
+		"esbuild": "latest",
+		"typescript": "latest"
+	},
+	"prettier": {
+		"printWidth": 200,
+		"tabWidth": 4,
+		"useTabs": true,
+		"semi": true,
+		"singleQuote": true,
+		"jsxSingleQuote": false,
+		"trailingComma": "all"
+	}
+}

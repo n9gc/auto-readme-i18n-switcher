@@ -1,0 +1,36 @@
+{
+	"$schema": "https://json.schemastore.org/package",
+	"name": "@accurtype/mono-test-wasm",
+	"version": "0.1.0",
+	"license": "MIT",
+	"author": "accurtype",
+	"description": "a demo Rust wasm package of accurtype monodemo",
+	"keywords": [
+		"demo",
+		"test"
+	],
+	"type": "module",
+	"main": "./dist/test_wasm.js",
+	"module": "./dist/test_wasm.js",
+	"types": "./dist/test_wasm.d.ts",
+	"bugs": {
+		"url": "https://github.com/accurtype/monodemo/issues"
+	},
+	"homepage": "https://github.com/accurtype/monodemo/tree/master/packages/test_wasm#readme",
+	"repository": {
+		"url": "git+https://github.com/accurtype/monodemo",
+		"type": "git"
+	},
+	"scripts": {
+		"build:wasm": "wasm-pack build --release -d dist -t bundler",
+
+		"prepublishOnly": "pnpm run build:wasm"
+	},
+	"files": [
+		"dist"
+	],
+	"devDependencies": {
+		"wasm-pack": "latest"
+	}
+}
+

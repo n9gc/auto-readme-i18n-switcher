@@ -1,0 +1,63 @@
+name: GitHub Pages
+
+on:
+    push:
+        branches: ['master']
+    pull_request:
+        branches: ['master']
+
+permissions:
+    contents: write
+    pages: write
+    id-token: write
+
+jobs:
+    build:
+        # env:
+        #     PLANT_UML_VERSION: '1.2024.7'
+        #     UML_GRAPH_LIST: 'docs/arch.puml'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Use Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 24.x
+
+            - uses: actions/checkout@master
+              with:
+                  persist-credentials: false
+                  fetch-depth: 0
+
+            - name: Build
+              run: |
+                  npm i pnpm -g
+                  rm -rf package-lock.json
+                  echo package-import-method=copy >> .npmrc
+                  echo prefer-symlinked-executables=false >> .npmrc
+                  pnpm i
+                  pnpm i
+                  pnpm build
+
+            # - name: Gen PlantUML
+            #   run: |
+            #       sudo apt install graphviz
+            #       wget https://github.com/plantuml/plantuml/releases/download/v${{ env.PLANT_UML_VERSION }}/plantuml-${{ env.PLANT_UML_VERSION }}.jar -O plantuml.jar
+            #       IFS=',' read -r -a array <<< "${{ env.UML_GRAPH_LIST }}"
+            #       for item in "${array[@]}"; do
+            #         java -jar plantuml.jar -tsvg $item
+            #       done
+            #       rm -rf plantuml.jar
+
+            - name: Save changes
+              run: |
+                  find . -name '.gitignore' -type f -print | xargs rm -rf
+                  rm -rf .husky
+                  git add .
+
+            - name: Push Branch
+              uses: actions-js/push@master
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: gh-pages
+                  amend: true
+                  force: true

@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json.schemastore.org/package",
+	"private": true,
+	"name": "docs",
+	"type": "module",
+	"scripts": {
+		"dev:docs": "echo hh",
+		"test:docs": "echo hh",
+		"build:docs": "echo hh",
+		"clear:docs": "echo hh"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"serve": "^14.2.4"
+	}
+}

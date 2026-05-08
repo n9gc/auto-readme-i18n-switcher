@@ -1,0 +1,33 @@
+{
+	"$schema": "https://json.schemastore.org/package",
+	"private": true,
+	"name": "config",
+	"type": "module",
+	"scripts": {
+		"prepare": "node prepare.ts > ../tsconfig.json"
+	},
+	"dependencies": {
+		"@commitlint/types": "^20.*.*",
+
+		"@types/eslint": "^9.*.*",
+		"@eslint/js": "^10.0.0",
+		"@eslint/markdown": "^7.*.*",
+		"@eslint/compat": "^2.*.*",
+		"eslint-config-accurtype-style": "^1.0.1",
+		"eslint-plugin-security": "latest",
+		"eslint-plugin-import-x": "latest",
+		"eslint-plugin-import-zod": "latest",
+		"eslint-import-resolver-typescript": "latest",
+		"@types/eslint-plugin-security": "latest",
+		"eslint-plugin-unicorn": "latest",
+		"typescript-eslint": "^8.*.*",
+		"globals": "^17.*.*",
+
+		"es-git": "latest",
+		"tsconfig-type": "latest",
+		"@types/node": "latest",
+		"cz-git": "latest",
+		"@pnpm/find-workspace-packages": "latest",
+		"@pnpm/types": "latest"
+	}
+}

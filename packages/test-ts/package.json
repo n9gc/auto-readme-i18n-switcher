@@ -1,0 +1,50 @@
+{
+	"$schema": "https://json.schemastore.org/package",
+	"name": "@accurtype/mono-test-ts",
+	"version": "0.1.0",
+	"license": "MIT",
+	"author": "accurtype",
+	"description": "a demo TS package of accurtype monodemo",
+	"keywords": [
+		"demo",
+		"test"
+	],
+	"type": "module",
+	"main": "./lib",
+	"module": "./lib",
+	"types": "./lib",
+	"bugs": {
+		"url": "https://github.com/accurtype/monodemo/issues"
+	},
+	"homepage": "https://github.com/accurtype/monodemo/tree/master/packages/test-ts#readme",
+	"repository": {
+		"url": "git+https://github.com/accurtype/monodemo",
+		"type": "git"
+	},
+	"scripts": {
+		"test:tape": "tsx test.ts | colortape",
+
+		"build:pipeline": "tsc --outDir . && node pack.ts",
+
+		"clear:tsc": "rimraf -g -- **/*.{d.ts,js} tsconfig.tsbuildinfo",
+
+		"prepublishOnly": "pnpm run /^build:.*/",
+		"postpublish": "pnpm run /^clear:.*/"
+	},
+	"files": [
+		"*",
+		"!tsconfig.json",
+		"!**/*.ts",
+		"**/*.d.ts",
+		"!*.swp",
+		"!pnpm-lock.yaml"
+	],
+	"dependencies": {
+		"@accurtype/mono-test-wasm": "workspace:^"
+	},
+	"devDependencies": {
+		"@types/tape": "latest",
+		"tape": "latest",
+		"colortape": "latest"
+	}
+}
