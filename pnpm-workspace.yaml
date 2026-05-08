@@ -3,8 +3,6 @@ packages:
     - 'packages/*'
     # 隔离配置文件夹的依赖环境
     - 'config'
-    # 主网站
-    - 'docs'
     # 剔除测试
     - '!**/test/**'
 allowBuilds:
