@@ -9,6 +9,8 @@
 		".": "./lib/index.ts"
 	},
 	"scripts": {
+		"build:pipeline": "tsc --outDir . && node pack.ts",
+		"clear:tsc": "rimraf -g -- **/*.{d.ts,js} tsconfig.tsbuildinfo"
 	},
 	"dependencies": {
 		"micromustache": "latest",
@@ -20,5 +22,6 @@
 		"@actions/core": "latest"
 	},
 	"devDependencies": {
+		"@types/node": "latest"
 	}
 }
