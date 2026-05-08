@@ -40,7 +40,6 @@
 		"!pnpm-lock.yaml"
 	],
 	"dependencies": {
-		"@accurtype/mono-test-wasm": "workspace:^"
 	},
 	"devDependencies": {
 		"@types/tape": "latest",

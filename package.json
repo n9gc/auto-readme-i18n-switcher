@@ -18,17 +18,13 @@
 
 		"fmt": "pnpm run-all --parallel /^fmt:.*/",
 		"fmt:js": "prettier -w . && eslint . --fix",
-		"fmt:rust": "cargo fmt && cargo clippy --fix --allow-dirty",
 
 		"lint": "pnpm run-all --parallel /^lint:.*/",
 		"lint:prettier": "prettier -c .",
 		"lint:eslint": "eslint .",
-		"lint:cargo": "cargo fmt --check",
-		"lint:clippy": "cargo clippy",
 
 		"test": "pnpm run-all /^test:.*/",
 		"test:ts": "tsc -b",
-		"test:rust": "cargo test",
 
 		"dev": "pnpm run-all --parallel /^dev:.*/",
 		"build": "pnpm run-all /^build:.*/",
