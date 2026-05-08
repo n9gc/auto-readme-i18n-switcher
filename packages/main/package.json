@@ -1,0 +1,17 @@
+{
+	"$schema": "https://json.schemastore.org/package",
+	"name": "main",
+	"version": "0.1.0",
+	"license": "MIT",
+	"author": "n9gc",
+	"type": "module",
+	"exports": {
+		".": "./lib/index.ts"
+	},
+	"scripts": {
+	},
+	"dependencies": {
+	},
+	"devDependencies": {
+	}
+}
