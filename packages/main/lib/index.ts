@@ -142,4 +142,4 @@ export class Runner {
 	}
 }
 
-await new Runner().run();
+new Runner().run();

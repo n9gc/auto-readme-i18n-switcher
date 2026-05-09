@@ -37,7 +37,7 @@ const config: ConfigArray = defineConfig(
 		name: 'Global Ignore',
 		ignores: [
 			'**/*.md',
-			'dist.js',
+			'dist.cjs',
 		],
 	},
 	{

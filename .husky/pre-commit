@@ -1,5 +1,5 @@
 #! /bin/sh
 pnpm lint
 pnpm build
-git add dist.js
+git add dist.cjs
 pnpm clear

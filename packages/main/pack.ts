@@ -3,8 +3,8 @@ import { build } from 'esbuild';
 await build({
 	entryPoints: ['lib/index.ts'],
 	bundle: true,
-	outfile: '../../dist.js',
-	format: 'esm',
+	outfile: '../../dist.cjs',
+	format: 'cjs',
 	platform: 'node',
-	target: 'esnext',
+	target: 'es2024',
 });
