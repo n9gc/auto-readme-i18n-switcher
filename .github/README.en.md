@@ -87,7 +87,7 @@ The multilingual switcher will be inserted here.
 <!-- abc end -->
 ```
 
-Default is `'<!-- auto-readme-i18n-switcher-->'`.
+Default is `'auto-readme-i18n-switcher'`.
 
 ### `switcherBody`
 
