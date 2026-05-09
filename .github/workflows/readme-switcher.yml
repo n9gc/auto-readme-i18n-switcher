@@ -1,0 +1,37 @@
+name: I18n Switcher of Readme
+
+on:
+    push:
+        branches: ['master']
+    pull_request:
+        branches: ['master']
+
+permissions:
+    id-token: write
+
+jobs:
+    switcher:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@master
+              with:
+                  persist-credentials: false
+                  fetch-depth: 0
+
+            - id: switcher
+              uses: n9gc/auto-readme-i18n-switcher@master
+              with:
+                  folders: |
+                      .github
+                  repoReadme: '.github/README.en.md'
+
+            - name: Save changes
+              if: steps.switcher.outputs.switcher_changed == 'true'
+              run: |
+                  git add .
+
+            - name: Push Branch
+              if: steps.switcher.outputs.switcher_changed == 'true'
+              uses: actions-js/push@master
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
