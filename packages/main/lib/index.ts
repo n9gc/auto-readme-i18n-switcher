@@ -121,24 +121,18 @@ export class Runner {
 	}
 
 	async run() {
-		try {
-			const updateds = await Promise.all(
-				this
-					.config
-					.realFolders
-					.map(folder => this.scanReadmes(folder))
-					.map(readmesPromise => readmesPromise.then(
-						readmes => this.writeToFiles(this.renderSwitchers(readmes)),
-					)),
-			);
-			updateds.push(await this.copyRepoReadme());
-			const updated = updateds.includes(true);
-			core.setOutput('switcher_changed', updated);
-		} catch (error) {
-			if (error instanceof Error) {
-				core.setFailed(error);
-			}
-		}
+		const updateds = await Promise.all(
+			this
+				.config
+				.realFolders
+				.map(folder => this.scanReadmes(folder))
+				.map(readmesPromise => readmesPromise.then(
+					readmes => this.writeToFiles(this.renderSwitchers(readmes)),
+				)),
+		);
+		updateds.push(await this.copyRepoReadme());
+		const updated = updateds.includes(true);
+		core.setOutput('switcher_changed', updated);
 	}
 }
 

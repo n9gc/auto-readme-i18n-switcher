@@ -203,18 +203,18 @@ var require_tunnel = __commonJS({
             res.statusCode
           );
           socket.destroy();
-          var error2 = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
-          error2.code = "ECONNRESET";
-          options.request.emit("error", error2);
+          var error = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
+          error.code = "ECONNRESET";
+          options.request.emit("error", error);
           self2.removeSocket(placeholder);
           return;
         }
         if (head.length > 0) {
           debug2("got illegal response body from proxy");
           socket.destroy();
-          var error2 = new Error("got illegal response body from proxy");
-          error2.code = "ECONNRESET";
-          options.request.emit("error", error2);
+          var error = new Error("got illegal response body from proxy");
+          error.code = "ECONNRESET";
+          options.request.emit("error", error);
           self2.removeSocket(placeholder);
           return;
         }
@@ -229,9 +229,9 @@ var require_tunnel = __commonJS({
           cause.message,
           cause.stack
         );
-        var error2 = new Error("tunneling socket could not be established, cause=" + cause.message);
-        error2.code = "ECONNRESET";
-        options.request.emit("error", error2);
+        var error = new Error("tunneling socket could not be established, cause=" + cause.message);
+        error.code = "ECONNRESET";
+        options.request.emit("error", error);
         self2.removeSocket(placeholder);
       }
     };
@@ -1560,14 +1560,14 @@ var require_diagnostics = __commonJS({
       diagnosticsChannel.channel("undici:client:connectError").subscribe((evt) => {
         const {
           connectParams: { version: version2, protocol, port, host },
-          error: error2
+          error
         } = evt;
         debuglog(
           "connection to %s using %s%s errored - %s",
           `${host}${port ? `:${port}` : ""}`,
           protocol,
           version2,
-          error2.message
+          error.message
         );
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
@@ -1598,14 +1598,14 @@ var require_diagnostics = __commonJS({
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
           request: { method, path: path3, origin },
-          error: error2
+          error
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method,
           origin,
           path3,
-          error2.message
+          error.message
         );
       });
       isClientSet = true;
@@ -1640,7 +1640,7 @@ var require_diagnostics = __commonJS({
         diagnosticsChannel.channel("undici:client:connectError").subscribe((evt) => {
           const {
             connectParams: { version: version2, protocol, port, host },
-            error: error2
+            error
           } = evt;
           debuglog(
             "connection to %s%s using %s%s errored - %s",
@@ -1648,7 +1648,7 @@ var require_diagnostics = __commonJS({
             port ? `:${port}` : "",
             protocol,
             version2,
-            error2.message
+            error.message
           );
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
@@ -1918,16 +1918,16 @@ var require_request = __commonJS({
           this.onError(err);
         }
       }
-      onError(error2) {
+      onError(error) {
         this.onFinally();
         if (channels.error.hasSubscribers) {
-          channels.error.publish({ request: this, error: error2 });
+          channels.error.publish({ request: this, error });
         }
         if (this.aborted) {
           return;
         }
         this.aborted = true;
-        return this[kHandler].onError(error2);
+        return this[kHandler].onError(error);
       }
       onFinally() {
         if (this.errorHandler) {
@@ -5657,7 +5657,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r
       }
       throwIfAborted(object2[kState]);
       const promise = createDeferredPromise();
-      const errorSteps = (error2) => promise.reject(error2);
+      const errorSteps = (error) => promise.reject(error);
       const successSteps = (data) => {
         try {
           promise.resolve(convertBytesToJSValue(data));
@@ -7165,8 +7165,8 @@ var require_client_h2 = __commonJS({
         }
         request.onRequestSent();
         client[kResume]();
-      } catch (error2) {
-        abort(error2);
+      } catch (error) {
+        abort(error);
       }
     }
     function writeStream(abort, socket, expectsPayload, h2stream, body, client, request, contentLength) {
@@ -7321,8 +7321,8 @@ var require_redirect_handler = __commonJS({
       onUpgrade(statusCode, headers, socket) {
         this.handler.onUpgrade(statusCode, headers, socket);
       }
-      onError(error2) {
-        this.handler.onError(error2);
+      onError(error) {
+        this.handler.onError(error);
       }
       onHeaders(statusCode, headers, resume, statusText) {
         this.location = this.history.length >= this.maxRedirections || util.isDisturbed(this.opts.body) ? null : parseLocation(statusCode, headers);
@@ -8251,7 +8251,7 @@ var require_pool = __commonJS({
         this[kOptions] = { ...util.deepClone(options), connect, allowH2 };
         this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
         this[kFactory] = factory;
-        this.on("connectionError", (origin2, targets, error2) => {
+        this.on("connectionError", (origin2, targets, error) => {
           for (const target of targets) {
             const idx = this[kClients].indexOf(target);
             if (idx !== -1) {
@@ -10618,13 +10618,13 @@ var require_mock_utils = __commonJS({
       if (mockDispatch2.data.callback) {
         mockDispatch2.data = { ...mockDispatch2.data, ...mockDispatch2.data.callback(opts) };
       }
-      const { data: { statusCode, data, headers, trailers, error: error2 }, delay, persist } = mockDispatch2;
+      const { data: { statusCode, data, headers, trailers, error }, delay, persist } = mockDispatch2;
       const { timesInvoked, times } = mockDispatch2;
       mockDispatch2.consumed = !persist && timesInvoked >= times;
       mockDispatch2.pending = timesInvoked < times;
-      if (error2 !== null) {
+      if (error !== null) {
         deleteMockDispatch(this[kDispatches], key);
-        handler.onError(error2);
+        handler.onError(error);
         return true;
       }
       if (typeof delay === "number" && delay > 0) {
@@ -10662,19 +10662,19 @@ var require_mock_utils = __commonJS({
         if (agent.isMockActive) {
           try {
             mockDispatch.call(this, opts, handler);
-          } catch (error2) {
-            if (error2 instanceof MockNotMatchedError) {
+          } catch (error) {
+            if (error instanceof MockNotMatchedError) {
               const netConnect = agent[kGetNetConnect]();
               if (netConnect === false) {
-                throw new MockNotMatchedError(`${error2.message}: subsequent request to origin ${origin} was not allowed (net.connect disabled)`);
+                throw new MockNotMatchedError(`${error.message}: subsequent request to origin ${origin} was not allowed (net.connect disabled)`);
               }
               if (checkNetConnect(netConnect, origin)) {
                 originalDispatch.call(this, opts, handler);
               } else {
-                throw new MockNotMatchedError(`${error2.message}: subsequent request to origin ${origin} was not allowed (net.connect is not enabled for this origin)`);
+                throw new MockNotMatchedError(`${error.message}: subsequent request to origin ${origin} was not allowed (net.connect is not enabled for this origin)`);
               }
             } else {
-              throw error2;
+              throw error;
             }
           }
         } else {
@@ -10839,11 +10839,11 @@ var require_mock_interceptor = __commonJS({
       /**
        * Mock an undici request with a defined error.
        */
-      replyWithError(error2) {
-        if (typeof error2 === "undefined") {
+      replyWithError(error) {
+        if (typeof error === "undefined") {
           throw new InvalidArgumentError("error must be defined");
         }
-        const newMockDispatch = addMockDispatch(this[kDispatches], this[kDispatchKey], { error: error2 });
+        const newMockDispatch = addMockDispatch(this[kDispatches], this[kDispatchKey], { error });
         return new MockScope(newMockDispatch);
       }
       /**
@@ -13361,17 +13361,17 @@ var require_fetch = __commonJS({
         this.emit("terminated", reason);
       }
       // https://fetch.spec.whatwg.org/#fetch-controller-abort
-      abort(error2) {
+      abort(error) {
         if (this.state !== "ongoing") {
           return;
         }
         this.state = "aborted";
-        if (!error2) {
-          error2 = new DOMException("The operation was aborted.", "AbortError");
+        if (!error) {
+          error = new DOMException("The operation was aborted.", "AbortError");
         }
-        this.serializedAbortReason = error2;
-        this.connection?.destroy(error2);
-        this.emit("terminated", error2);
+        this.serializedAbortReason = error;
+        this.connection?.destroy(error);
+        this.emit("terminated", error);
       }
     };
     function handleFetchDone(response) {
@@ -13467,12 +13467,12 @@ var require_fetch = __commonJS({
       );
     }
     var markResourceTiming = performance.markResourceTiming;
-    function abortFetch(p, request, responseObject, error2) {
+    function abortFetch(p, request, responseObject, error) {
       if (p) {
-        p.reject(error2);
+        p.reject(error);
       }
       if (request.body != null && isReadable(request.body?.stream)) {
-        request.body.stream.cancel(error2).catch((err) => {
+        request.body.stream.cancel(error).catch((err) => {
           if (err.code === "ERR_INVALID_STATE") {
             return;
           }
@@ -13484,7 +13484,7 @@ var require_fetch = __commonJS({
       }
       const response = responseObject[kState];
       if (response.body != null && isReadable(response.body?.stream)) {
-        response.body.stream.cancel(error2).catch((err) => {
+        response.body.stream.cancel(error).catch((err) => {
           if (err.code === "ERR_INVALID_STATE") {
             return;
           }
@@ -14305,13 +14305,13 @@ var require_fetch = __commonJS({
               fetchParams.controller.ended = true;
               this.body.push(null);
             },
-            onError(error2) {
+            onError(error) {
               if (this.abort) {
                 fetchParams.controller.off("terminated", this.abort);
               }
-              this.body?.destroy(error2);
-              fetchParams.controller.terminate(error2);
-              reject(error2);
+              this.body?.destroy(error);
+              fetchParams.controller.terminate(error);
+              reject(error);
             },
             onUpgrade(status, rawHeaders, socket) {
               if (status !== 101) {
@@ -14774,8 +14774,8 @@ var require_util4 = __commonJS({
                   }
                   fr[kResult] = result;
                   fireAProgressEvent("load", fr);
-                } catch (error2) {
-                  fr[kError] = error2;
+                } catch (error) {
+                  fr[kError] = error;
                   fireAProgressEvent("error", fr);
                 }
                 if (fr[kState] !== "loading") {
@@ -14784,13 +14784,13 @@ var require_util4 = __commonJS({
               });
               break;
             }
-          } catch (error2) {
+          } catch (error) {
             if (fr[kAborted]) {
               return;
             }
             queueMicrotask(() => {
               fr[kState] = "done";
-              fr[kError] = error2;
+              fr[kError] = error;
               fireAProgressEvent("error", fr);
               if (fr[kState] !== "loading") {
                 fireAProgressEvent("loadend", fr);
@@ -17062,11 +17062,11 @@ var require_connection = __commonJS({
         });
       }
     }
-    function onSocketError(error2) {
+    function onSocketError(error) {
       const { ws } = this;
       ws[kReadyState] = states.CLOSING;
       if (channels.socketError.hasSubscribers) {
-        channels.socketError.publish(error2);
+        channels.socketError.publish(error);
       }
       this.destroy();
     }
@@ -17348,9 +17348,9 @@ var require_receiver = __commonJS({
                 this.#extensions.get("permessage-deflate").decompress(
                   body,
                   this.#info.fin,
-                  (error2, data) => {
-                    if (error2) {
-                      failWebsocketConnection(this.ws, error2.message);
+                  (error, data) => {
+                    if (error) {
+                      failWebsocketConnection(this.ws, error.message);
                       return;
                     }
                     this.writeFragments(data);
@@ -18404,8 +18404,8 @@ var require_eventsource = __commonJS({
           pipeline(
             response.body.stream,
             eventSourceStream,
-            (error2) => {
-              if (error2?.aborted === false) {
+            (error) => {
+              if (error?.aborted === false) {
                 this.close();
                 this.dispatchEvent(new Event("error"));
               }
@@ -19145,19 +19145,6 @@ function toCommandValue(input) {
   }
   return JSON.stringify(input);
 }
-function toCommandProperties(annotationProperties) {
-  if (!Object.keys(annotationProperties).length) {
-    return {};
-  }
-  return {
-    title: annotationProperties.title,
-    file: annotationProperties.file,
-    line: annotationProperties.startLine,
-    endLine: annotationProperties.endLine,
-    col: annotationProperties.startColumn,
-    endColumn: annotationProperties.endColumn
-  };
-}
 
 // ../../node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/command.js
 function issueCommand(command, properties, message) {
@@ -19631,13 +19618,6 @@ function setOutput(name, value) {
   }
   process.stdout.write(os4.EOL);
   issueCommand("set-output", { name }, toCommandValue(value));
-}
-function setFailed(message) {
-  process.exitCode = ExitCode.Failure;
-  error(message);
-}
-function error(message, properties = {}) {
-  issueCommand("error", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 function info(message) {
   process.stdout.write(message + os4.EOL);
@@ -20435,10 +20415,10 @@ var initializer = (inst, def) => {
 };
 var $ZodError = $constructor("$ZodError", initializer);
 var $ZodRealError = $constructor("$ZodError", initializer, { Parent: Error });
-function flattenError(error2, mapper = (issue3) => issue3.message) {
+function flattenError(error, mapper = (issue3) => issue3.message) {
   const fieldErrors = {};
   const formErrors = [];
-  for (const sub of error2.issues) {
+  for (const sub of error.issues) {
     if (sub.path.length > 0) {
       fieldErrors[sub.path[0]] = fieldErrors[sub.path[0]] || [];
       fieldErrors[sub.path[0]].push(mapper(sub));
@@ -20448,10 +20428,10 @@ function flattenError(error2, mapper = (issue3) => issue3.message) {
   }
   return { formErrors, fieldErrors };
 }
-function formatError(error2, mapper = (issue3) => issue3.message) {
+function formatError(error, mapper = (issue3) => issue3.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error3, path3 = []) => {
-    for (const issue3 of error3.issues) {
+  const processError = (error2, path3 = []) => {
+    for (const issue3 of error2.issues) {
       if (issue3.code === "invalid_union" && issue3.errors.length) {
         issue3.errors.map((issues) => processError({ issues }, [...path3, ...issue3.path]));
       } else if (issue3.code === "invalid_key") {
@@ -20481,7 +20461,7 @@ function formatError(error2, mapper = (issue3) => issue3.message) {
       }
     }
   };
-  processError(error2);
+  processError(error);
   return fieldErrors;
 }
 
@@ -32947,9 +32927,9 @@ var esm_default = typeof structuredClone === "function" ? (
 ) : (any, options) => deserialize(serialize(any, options));
 
 // ../../node_modules/.pnpm/bail@2.0.2/node_modules/bail/index.js
-function bail(error2) {
-  if (error2) {
-    throw error2;
+function bail(error) {
+  if (error) {
+    throw error;
   }
 }
 
@@ -32978,11 +32958,11 @@ function trough() {
       throw new TypeError("Expected function as last argument, not " + callback);
     }
     next(null, ...values);
-    function next(error2, ...output) {
+    function next(error, ...output) {
       const fn = fns[++middlewareIndex];
       let index2 = -1;
-      if (error2) {
-        callback(error2);
+      if (error) {
+        callback(error);
         return;
       }
       while (++index2 < values.length) {
@@ -33019,10 +32999,10 @@ function wrap(middleware, callback) {
     }
     try {
       result = middleware.apply(this, parameters);
-    } catch (error2) {
+    } catch (error) {
       const exception = (
         /** @type {Error} */
-        error2
+        error
       );
       if (fnExpectsCallback && called) {
         throw exception;
@@ -33039,10 +33019,10 @@ function wrap(middleware, callback) {
       }
     }
   }
-  function done(error2, ...output) {
+  function done(error, ...output) {
     if (!called) {
       called = true;
-      callback(error2, ...output);
+      callback(error, ...output);
     }
   }
   function then(value) {
@@ -33929,9 +33909,9 @@ var Processor = class _Processor extends CallableInstance {
         /** @type {unknown} */
         self2.parse(realFile)
       );
-      self2.run(parseTree, realFile, function(error2, tree, file2) {
-        if (error2 || !tree || !file2) {
-          return realDone(error2);
+      self2.run(parseTree, realFile, function(error, tree, file2) {
+        if (error || !tree || !file2) {
+          return realDone(error);
         }
         const compileTree = (
           /** @type {CompileTree extends undefined ? Node : CompileTree} */
@@ -33945,14 +33925,14 @@ var Processor = class _Processor extends CallableInstance {
           file2.result = compileResult;
         }
         realDone(
-          error2,
+          error,
           /** @type {VFileWithOutput<CompileResult>} */
           file2
         );
       });
-      function realDone(error2, file2) {
-        if (error2 || !file2) {
-          reject(error2);
+      function realDone(error, file2) {
+        if (error || !file2) {
+          reject(error);
         } else if (resolve) {
           resolve(file2);
         } else {
@@ -34003,9 +33983,9 @@ var Processor = class _Processor extends CallableInstance {
     assertDone("processSync", "process", complete);
     ok2(result, "we either bailed on an error or have a tree");
     return result;
-    function realDone(error2, file2) {
+    function realDone(error, file2) {
       complete = true;
-      bail(error2);
+      bail(error);
       result = file2;
     }
   }
@@ -34063,13 +34043,13 @@ var Processor = class _Processor extends CallableInstance {
       );
       const realFile = vfile(file);
       transformers.run(tree, realFile, realDone);
-      function realDone(error2, outputTree, file2) {
+      function realDone(error, outputTree, file2) {
         const resultingTree = (
           /** @type {TailTree extends undefined ? Node : TailTree} */
           outputTree || tree
         );
-        if (error2) {
-          reject(error2);
+        if (error) {
+          reject(error);
         } else if (resolve) {
           resolve(resultingTree);
         } else {
@@ -34103,8 +34083,8 @@ var Processor = class _Processor extends CallableInstance {
     assertDone("runSync", "run", complete);
     ok2(result, "we either bailed on an error or have a tree");
     return result;
-    function realDone(error2, tree2) {
-      bail(error2);
+    function realDone(error, tree2) {
+      bail(error);
       result = tree2;
       complete = true;
     }
@@ -34439,20 +34419,14 @@ var Runner = class {
     return true;
   }
   async run() {
-    try {
-      const updateds = await Promise.all(
-        this.config.realFolders.map((folder) => this.scanReadmes(folder)).map((readmesPromise) => readmesPromise.then(
-          (readmes) => this.writeToFiles(this.renderSwitchers(readmes))
-        ))
-      );
-      updateds.push(await this.copyRepoReadme());
-      const updated = updateds.includes(true);
-      setOutput("switcher_changed", updated);
-    } catch (error2) {
-      if (error2 instanceof Error) {
-        setFailed(error2);
-      }
-    }
+    const updateds = await Promise.all(
+      this.config.realFolders.map((folder) => this.scanReadmes(folder)).map((readmesPromise) => readmesPromise.then(
+        (readmes) => this.writeToFiles(this.renderSwitchers(readmes))
+      ))
+    );
+    updateds.push(await this.copyRepoReadme());
+    const updated = updateds.includes(true);
+    setOutput("switcher_changed", updated);
   }
 };
 new Runner().run();
