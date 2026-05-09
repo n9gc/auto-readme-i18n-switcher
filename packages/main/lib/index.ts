@@ -10,7 +10,7 @@ import * as fsp from 'node:fs/promises';
 import path from 'node:path';
 import * as z from 'zod';
 import { Config } from './config.ts';
-import { spawnSync } from 'node:child_process';
+import { replaceZone } from './mdop.ts';
 
 export const ParsedReadme = z.object({
 	folder: z.string(),
@@ -24,6 +24,15 @@ export interface ReadmeInfo extends ParsedReadme {
 }
 export interface ReadmeInfoWithSwitcher extends ReadmeInfo {
 	readonly switcher: string;
+}
+
+export async function isExist(filePath: string) {
+	try {
+		await fsp.access(filePath, fsp.constants.F_OK);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 export class Runner {
@@ -75,41 +84,56 @@ export class Runner {
 	}
 
 	/**写入切换器 */
-	async writeToFiles(readmes: readonly ReadmeInfoWithSwitcher[]) {
+	async writeToFiles(readmes: readonly ReadmeInfoWithSwitcher[]): Promise<boolean> {
+		let updated = false;
 		for (const { filePath, switcher } of readmes) {
 			// eslint-disable-next-line security/detect-non-literal-fs-filename
-			const file = await fsp.readFile(filePath);
-			const content = file.toString();
-			if (!content.includes(this.config.tag)) {
-				core.info(`${Config.toRelative(filePath)} has no tag`);
+			const content = await fsp.readFile(filePath, 'utf8');
+			const contentNew = await replaceZone(content, this.config.tag, switcher);
+			if (content === contentNew) {
+				core.info(`${Config.toRelative(filePath)} had updated.`);
 				continue;
 			}
-			const contentNew = content.replaceAll(this.config.tag, switcher);
 			// eslint-disable-next-line security/detect-non-literal-fs-filename
 			await fsp.writeFile(filePath, contentNew);
 			core.info(`${Config.toRelative(filePath)} updated successfully.`);
+			updated ||= true;
 		}
+		return updated;
 	}
 
 	/**设置仓库说明文件 */
-	async copyRepoReadme() {
+	async copyRepoReadme(): Promise<boolean> {
 		const { realRepoReadme } = this.config;
-		if (!realRepoReadme) return;
-		await fsp.copyFile(
-			realRepoReadme,
-			path.join(Config.root, `README${path.extname(realRepoReadme)}`),
-		);
+		if (!realRepoReadme) return false;
+		const rootReadme = path.join(Config.root, `README${path.extname(realRepoReadme)}`);
+		if (await isExist(rootReadme)) {
+			const [oriContent, rootContent] = await Promise.all([
+				// eslint-disable-next-line security/detect-non-literal-fs-filename
+				fsp.readFile(realRepoReadme, 'utf8'),
+				// eslint-disable-next-line security/detect-non-literal-fs-filename
+				fsp.readFile(rootReadme, 'utf8'),
+			]);
+			if (oriContent === rootContent) return false;
+		}
+		await fsp.copyFile(realRepoReadme, rootReadme);
+		return true;
 	}
 
 	async run() {
 		try {
-			for (const folder of this.config.realFolders) {
-				const readmes = await this.scanReadmes(folder);
-				await this.writeToFiles(this.renderSwitchers(readmes));
-			}
-			await this.copyRepoReadme();
-			const { status } = spawnSync('git', ['diff', '--quiet'], { stdio: 'inherit' });
-			core.setOutput('switcher_generated', status === 0);
+			const updateds = await Promise.all(
+				this
+					.config
+					.realFolders
+					.map(folder => this.scanReadmes(folder))
+					.map(readmesPromise => readmesPromise.then(
+						readmes => this.writeToFiles(this.renderSwitchers(readmes)),
+					)),
+			);
+			updateds.push(await this.copyRepoReadme());
+			const updated = updateds.includes(true);
+			core.setOutput('switcher_changed', updated);
 		} catch (error) {
 			if (error instanceof Error) {
 				core.setFailed(error);

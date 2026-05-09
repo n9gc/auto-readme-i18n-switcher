@@ -22,8 +22,8 @@ inputs:
         required: false
     tag:
         description: |
-            A piece of text that will be replaced by generated switcher
-        default: '<!-- auto-readme-i18n-switcher-->'
+            The name of the html commit tag.
+        default: 'auto-readme-i18n-switcher'
         required: false
     switcherBody:
         description: |

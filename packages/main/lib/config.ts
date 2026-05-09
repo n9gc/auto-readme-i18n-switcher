@@ -62,7 +62,7 @@ export class Config {
 	readonly fileTemplate = new UriTemplate(`{folder}${this.fileName}`);
 
 	/**标签 */
-	@Input readonly tag: string = '<!-- auto-readme-i18n-switcher-->';
+	@Input readonly tag: string = 'auto-readme-i18n-switcher';
 
 	/**预先编译模板 */
 	private compile(template: string) {
