@@ -15,10 +15,7 @@ export function replaceZone(markdown: string, tag: string, content: string) {
 		const joiner = (tree: Nodes) => zone(tree, tag, (start, _, end) => {
 			const startOffset = start.position?.end.offset;
 			const endOffset = end.position?.start.offset;
-			if (startOffset === void 0 || endOffset === void 0) {
-				resolve(markdown);
-				return [];
-			}
+			if (startOffset === void 0 || endOffset === void 0) return [];
 			const starter = markdown.slice(0, startOffset);
 			const ender = markdown.slice(endOffset);
 
@@ -27,7 +24,8 @@ export function replaceZone(markdown: string, tag: string, content: string) {
 		});
 		remark()
 			.use(() => joiner)
-			.process(markdown);
+			.process(markdown)
+			.then(() => resolve(markdown));
 	});
 }
 
