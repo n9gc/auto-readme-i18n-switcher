@@ -75,7 +75,7 @@ export class Config {
 	/**切换器框架模板字符串 */
 	@Input protected readonly switcherBody: string = '| {{lines}} |';
 	/**每个语言文件的模板字符串 */
-	@Input protected readonly switcherLine: string = '[{{display}}]({{path}})';
+	@Input protected readonly switcherLine: string = '[{{display}}]({{filePath}})';
 	/**当前语言文件的模板字符串 */
 	@Input protected readonly switcherLineActive: string = '{{display}}';
 	/**每个语言文件之间的分隔符 */

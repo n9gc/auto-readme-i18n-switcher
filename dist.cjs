@@ -23918,7 +23918,7 @@ var _Config = class _Config {
     __publicField(this, "fileTemplate", new import_uri_template_lite.default(`{folder}${this.fileName}`));
     __publicField(this, "tag", __runInitializers(_init, 20, this, "auto-readme-i18n-switcher")), __runInitializers(_init, 23, this);
     __publicField(this, "switcherBody", __runInitializers(_init, 24, this, "| {{lines}} |")), __runInitializers(_init, 27, this);
-    __publicField(this, "switcherLine", __runInitializers(_init, 28, this, "[{{display}}]({{path}})")), __runInitializers(_init, 31, this);
+    __publicField(this, "switcherLine", __runInitializers(_init, 28, this, "[{{display}}]({{filePath}})")), __runInitializers(_init, 31, this);
     __publicField(this, "switcherLineActive", __runInitializers(_init, 32, this, "{{display}}")), __runInitializers(_init, 35, this);
     __publicField(this, "switcherSpliter", __runInitializers(_init, 36, this, " | ")), __runInitializers(_init, 39, this);
     /**切换器框架模板渲染器 */
