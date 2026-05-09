@@ -1,6 +1,7 @@
 # 自述文件多语言切换器的生成器
 
 <!-- auto-readme-i18n-switcher start -->
+| [English](.github/README.en.md) | [日本語](.github/README.ja.md) | 中文 |
 <!-- auto-readme-i18n-switcher end -->
 
 本生成器用于生成自述文件的多语言切换器，就是这句话上面的那个。
