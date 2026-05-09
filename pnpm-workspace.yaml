@@ -1,3 +1,5 @@
+enablePrePostScripts: true
+engineStrict: true
 packages:
     # 各个 mono 包
     - 'packages/*'
