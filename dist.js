@@ -4014,11 +4014,11 @@ var require_util2 = __commonJS({
     var { isUint8Array } = __require("node:util/types");
     var { webidl } = require_webidl();
     var supportedHashes = [];
-    var crypto;
+    var crypto2;
     try {
-      crypto = __require("node:crypto");
+      crypto2 = __require("node:crypto");
       const possibleRelevantHashes = ["sha256", "sha384", "sha512"];
-      supportedHashes = crypto.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
+      supportedHashes = crypto2.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
     } catch {
     }
     function responseURL(response) {
@@ -4291,7 +4291,7 @@ var require_util2 = __commonJS({
       }
     }
     function bytesMatch(bytes, metadataList) {
-      if (crypto === void 0) {
+      if (crypto2 === void 0) {
         return true;
       }
       const parsedMetadata = parseMetadata(metadataList);
@@ -4306,7 +4306,7 @@ var require_util2 = __commonJS({
       for (const item of metadata) {
         const algorithm = item.algo;
         const expectedValue = item.hash;
-        let actualValue = crypto.createHash(algorithm).update(bytes).digest("base64");
+        let actualValue = crypto2.createHash(algorithm).update(bytes).digest("base64");
         if (actualValue[actualValue.length - 1] === "=") {
           if (actualValue[actualValue.length - 2] === "=") {
             actualValue = actualValue.slice(0, -2);
@@ -5370,8 +5370,8 @@ var require_body = __commonJS({
     var { multipartFormDataParser } = require_formdata_parser();
     var random;
     try {
-      const crypto = __require("node:crypto");
-      random = (max) => crypto.randomInt(0, max);
+      const crypto2 = __require("node:crypto");
+      random = (max) => crypto2.randomInt(0, max);
     } catch {
       random = (max) => Math.floor(Math.random(max));
     }
@@ -16780,13 +16780,13 @@ var require_frame = __commonJS({
     "use strict";
     var { maxUnsigned16Bit } = require_constants5();
     var BUFFER_SIZE = 16386;
-    var crypto;
+    var crypto2;
     var buffer = null;
     var bufIdx = BUFFER_SIZE;
     try {
-      crypto = __require("node:crypto");
+      crypto2 = __require("node:crypto");
     } catch {
-      crypto = {
+      crypto2 = {
         // not full compatibility, but minimum.
         randomFillSync: function randomFillSync(buffer2, _offset, _size2) {
           for (let i = 0; i < buffer2.length; ++i) {
@@ -16799,7 +16799,7 @@ var require_frame = __commonJS({
     function generateMask() {
       if (bufIdx === BUFFER_SIZE) {
         bufIdx = 0;
-        crypto.randomFillSync(buffer ??= Buffer.allocUnsafe(BUFFER_SIZE), 0, BUFFER_SIZE);
+        crypto2.randomFillSync(buffer ??= Buffer.allocUnsafe(BUFFER_SIZE), 0, BUFFER_SIZE);
       }
       return [buffer[bufIdx++], buffer[bufIdx++], buffer[bufIdx++], buffer[bufIdx++]];
     }
@@ -16871,9 +16871,9 @@ var require_connection = __commonJS({
     var { Headers: Headers2, getHeadersList } = require_headers();
     var { getDecodeSplit } = require_util2();
     var { WebsocketFrameSend } = require_frame();
-    var crypto;
+    var crypto2;
     try {
-      crypto = __require("node:crypto");
+      crypto2 = __require("node:crypto");
     } catch {
     }
     function establishWebSocketConnection(url, protocols, client, ws, onEstablish, options) {
@@ -16893,7 +16893,7 @@ var require_connection = __commonJS({
         const headersList = getHeadersList(new Headers2(options.headers));
         request.headersList = headersList;
       }
-      const keyValue = crypto.randomBytes(16).toString("base64");
+      const keyValue = crypto2.randomBytes(16).toString("base64");
       request.headersList.append("sec-websocket-key", keyValue);
       request.headersList.append("sec-websocket-version", "13");
       for (const protocol of protocols) {
@@ -16923,7 +16923,7 @@ var require_connection = __commonJS({
             return;
           }
           const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-          const digest = crypto.createHash("sha1").update(keyValue + uid).digest("base64");
+          const digest = crypto2.createHash("sha1").update(keyValue + uid).digest("base64");
           if (secWSAccept !== digest) {
             failWebsocketConnection(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
             return;
@@ -19154,8 +19154,36 @@ function escapeProperty(s) {
   return toCommandValue(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A").replace(/:/g, "%3A").replace(/,/g, "%2C");
 }
 
+// ../../node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/file-command.js
+import * as crypto from "crypto";
+import * as fs from "fs";
+import * as os2 from "os";
+function issueFileCommand(command, message) {
+  const filePath = process.env[`GITHUB_${command}`];
+  if (!filePath) {
+    throw new Error(`Unable to find environment variable for file command ${command}`);
+  }
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Missing file at path: ${filePath}`);
+  }
+  fs.appendFileSync(filePath, `${toCommandValue(message)}${os2.EOL}`, {
+    encoding: "utf8"
+  });
+}
+function prepareKeyValueMessage(key, value) {
+  const delimiter = `ghadelimiter_${crypto.randomUUID()}`;
+  const convertedValue = toCommandValue(value);
+  if (key.includes(delimiter)) {
+    throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+  }
+  if (convertedValue.includes(delimiter)) {
+    throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+  }
+  return `${key}<<${delimiter}${os2.EOL}${convertedValue}${os2.EOL}${delimiter}`;
+}
+
 // ../../node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/core.js
-import * as os3 from "os";
+import * as os4 from "os";
 
 // ../../node_modules/.pnpm/@actions+http-client@4.0.1/node_modules/@actions/http-client/lib/index.js
 var tunnel = __toESM(require_tunnel2(), 1);
@@ -19213,7 +19241,7 @@ var HttpResponseRetryCodes = [
 ];
 
 // ../../node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/summary.js
-import { EOL as EOL2 } from "os";
+import { EOL as EOL3 } from "os";
 import { constants, promises } from "fs";
 var __awaiter = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
@@ -19357,7 +19385,7 @@ var Summary = class {
    * @returns {Summary} summary instance
    */
   addEOL() {
-    return this.addRaw(EOL2);
+    return this.addRaw(EOL3);
   }
   /**
    * Adds an HTML codeblock to the summary buffer
@@ -19497,20 +19525,20 @@ var Summary = class {
 var _summary = new Summary();
 
 // ../../node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/platform.js
-import os2 from "os";
+import os3 from "os";
 
 // ../../node_modules/.pnpm/@actions+io@3.0.2/node_modules/@actions/io/lib/io-util.js
-import * as fs from "fs";
-var { chmod, copyFile, lstat, mkdir, open, readdir, rename, rm, rmdir, stat, symlink, unlink } = fs.promises;
+import * as fs2 from "fs";
+var { chmod, copyFile, lstat, mkdir, open, readdir, rename, rm, rmdir, stat, symlink, unlink } = fs2.promises;
 var IS_WINDOWS = process.platform === "win32";
-var READONLY = fs.constants.O_RDONLY;
+var READONLY = fs2.constants.O_RDONLY;
 
 // ../../node_modules/.pnpm/@actions+exec@3.0.0/node_modules/@actions/exec/lib/toolrunner.js
 var IS_WINDOWS2 = process.platform === "win32";
 
 // ../../node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/platform.js
-var platform = os2.platform();
-var arch = os2.arch();
+var platform = os3.platform();
+var arch = os3.arch();
 
 // ../../node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/core.js
 var ExitCode;
@@ -19546,6 +19574,14 @@ function getBooleanInput(name, options) {
   throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}
 Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
 }
+function setOutput(name, value) {
+  const filePath = process.env["GITHUB_OUTPUT"] || "";
+  if (filePath) {
+    return issueFileCommand("OUTPUT", prepareKeyValueMessage(name, value));
+  }
+  process.stdout.write(os4.EOL);
+  issueCommand("set-output", { name }, toCommandValue(value));
+}
 function setFailed(message) {
   process.exitCode = ExitCode.Failure;
   error(message);
@@ -19554,7 +19590,7 @@ function error(message, properties = {}) {
   issueCommand("error", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 function info(message) {
-  process.stdout.write(message + os3.EOL);
+  process.stdout.write(message + os4.EOL);
 }
 
 // lib/index.ts
@@ -23823,7 +23859,7 @@ function superRefine(fn, params) {
 // lib/config.ts
 var import_micromustache = __toESM(require_micromustache(), 1);
 var import_uri_template_lite = __toESM(require_uri_template_lite(), 1);
-import * as fs2 from "node:fs";
+import * as fs3 from "node:fs";
 import path from "node:path";
 function getInputDecorator(getter, judger) {
   return (_, context) => {
@@ -23843,7 +23879,7 @@ var Config = class _Config {
   static root = process.cwd();
   /**变成绝对路径 */
   static toReal(filePath) {
-    return fs2.realpathSync(filePath);
+    return fs3.realpathSync(filePath);
   }
   /**变成绝对路径 */
   static toReals(filePaths) {
@@ -23882,6 +23918,7 @@ var Config = class _Config {
 };
 
 // lib/index.ts
+import { spawnSync } from "node:child_process";
 var ParsedReadme = object({
   folder: string2(),
   lang: string2()
@@ -23954,6 +23991,8 @@ var Runner = class {
         await this.writeToFiles(this.renderSwitchers(readmes));
       }
       await this.copyRepoReadme();
+      const { status } = spawnSync("git", ["diff", "--quiet"], { stdio: "inherit" });
+      setOutput("switcher_generated", status === 0);
     } catch (error2) {
       if (error2 instanceof Error) {
         setFailed(error2);

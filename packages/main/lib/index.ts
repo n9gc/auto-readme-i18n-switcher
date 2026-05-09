@@ -10,6 +10,7 @@ import * as fsp from 'node:fs/promises';
 import path from 'node:path';
 import * as z from 'zod';
 import { Config } from './config.ts';
+import { spawnSync } from 'node:child_process';
 
 export const ParsedReadme = z.object({
 	folder: z.string(),
@@ -107,6 +108,8 @@ export class Runner {
 				await this.writeToFiles(this.renderSwitchers(readmes));
 			}
 			await this.copyRepoReadme();
+			const { status } = spawnSync('git', ['diff', '--quiet'], { stdio: 'inherit' });
+			core.setOutput('switcher_generated', status === 0);
 		} catch (error) {
 			if (error instanceof Error) {
 				core.setFailed(error);
