@@ -6,24 +6,20 @@ inputs:
     folders:
         description: |
             Folders of READMEs, one line each
-        default: '.'
         required: false
     fileName:
         description: |
             The pattern of readme files' name, where `{lang}` is used to match the locale of the readme.
             RFC 6570.
-        default: 'README.{lang}.md'
         required: false
     repoReadme:
         description: |
             The readme file that will be displayed as repo's README.
             If not provided, repo's README will not be changed.
-        default: ''
         required: false
     tag:
         description: |
             The name of the html commit tag.
-        default: 'auto-readme-i18n-switcher'
         required: false
     switcherBody:
         description: |
@@ -32,7 +28,6 @@ inputs:
 
             all vars:
             - `lines` the inner text of the switcher
-        default: '| {{lines}} |'
         required: false
     switcherLine:
         description: |
@@ -44,7 +39,6 @@ inputs:
             - `filePath` the path of the readme
             - `folder` the folder of the readme
             - `lang` the text inside `{lang}` of the readme file
-        default: '[{{display}}]({{path}})'
         required: false
     switcherLineActive:
         description: |
@@ -56,12 +50,10 @@ inputs:
             - `filePath` the path of the readme
             - `folder` the folder of the readme
             - `lang` the text inside `{lang}` of the readme file
-        default: '{{display}}'
         required: false
     switcherSpliter:
         description: |
             Text used to separate each language option of the switcher
-        default: ' | '
         required: false
 
 runs:
