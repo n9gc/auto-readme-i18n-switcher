@@ -34411,8 +34411,9 @@ var Runner = class {
         fsp.readFile(rootReadme, "utf8")
       ]);
       if (oriContent === rootContent) return false;
+      fsp.unlink(rootReadme);
     }
-    await fsp.copyFile(realRepoReadme, rootReadme);
+    await fsp.symlink(Config.toRelative(realRepoReadme), rootReadme, "file");
     return true;
   }
   async run() {

@@ -115,8 +115,11 @@ export class Runner {
 				fsp.readFile(rootReadme, 'utf8'),
 			]);
 			if (oriContent === rootContent) return false;
+			// eslint-disable-next-line security/detect-non-literal-fs-filename
+			fsp.unlink(rootReadme);
 		}
-		await fsp.copyFile(realRepoReadme, rootReadme);
+		// eslint-disable-next-line security/detect-non-literal-fs-filename
+		await fsp.symlink(Config.toRelative(realRepoReadme), rootReadme, 'file');
 		return true;
 	}
 
