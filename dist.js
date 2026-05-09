@@ -25151,6 +25151,7 @@ var ParsedReadme = object({
 }).readonly();
 var Config = class {
   @Input folder = ".";
+  @Input baseLocale = "";
   @Input fileName = "README.{lang}.md";
   /**文件名的模式  */
   fileTemplate = new import_uri_template_lite.default(`{folder}/${this.fileName}`);
@@ -25186,6 +25187,7 @@ var Config = class {
 async function run() {
   try {
     const config2 = new Config();
+    const root = process.cwd();
     process.chdir(config2.folder);
     const cwd = process.cwd();
     const files = await (0, import_promises.walk)(".", {
@@ -25198,16 +25200,22 @@ async function run() {
       info("No files.");
       return;
     }
+    const repoReadmes = /* @__PURE__ */ new Set();
     const readmes = files.flatMap(({ path: filePath }) => {
       filePath = path.relative(cwd, filePath);
       const data = config2.parseFile(filePath);
       if (!data) return [];
-      const display = new Intl.DisplayNames(data.lang, { type: "language" }).of(data.lang);
-      return [{ ...data, filePath, display }];
+      const display = new Intl.DisplayNames(data.lang, { type: "language" }).of(data.lang) ?? data.lang;
+      const readmeInfo = { ...data, filePath, display };
+      if (data.lang === config2.baseLocale) repoReadmes.add(readmeInfo);
+      return [readmeInfo];
     });
     if (readmes.length === 0) {
       info("No readme files.");
       return;
+    }
+    if (repoReadmes.size > 1) {
+      throw new Error("too many base locale file", { cause: repoReadmes });
     }
     for (const readme of readmes) {
       const file = await fsp.readFile(readme.filePath);
@@ -25220,6 +25228,9 @@ async function run() {
       await fsp.writeFile(readme.filePath, contentNew);
       info(`${readme.filePath} updated successfully.`);
     }
+    for (const { filePath } of repoReadmes) {
+      fsp.copyFile(filePath, path.join(root, `README${path.extname(filePath)}`));
+    }
   } catch (error2) {
     if (error2 instanceof Error) {
       setFailed(error2);
@@ -25227,6 +25238,9 @@ async function run() {
   }
 }
 await run();
+export {
+  run
+};
 /**
  * 配置相关
  * @license MIT

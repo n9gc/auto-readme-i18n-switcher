@@ -37,6 +37,9 @@ export class Config {
 	/**自述文件文件夹 */
 	@Input readonly folder: string = '.';
 
+	/**用作仓库说明文件的语言  */
+	@Input readonly baseLocale: string = '';
+
 	/**文件名的模式字符串  */
 	@Input protected readonly fileName: string = 'README.{lang}.md';
 	/**文件名的模式  */

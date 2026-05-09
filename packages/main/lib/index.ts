@@ -11,9 +11,17 @@ import * as fsp from 'node:fs/promises';
 import path from 'node:path';
 import { Config } from './config.ts';
 
-async function run() {
+export interface ReadmeInfo {
+	readonly filePath: string;
+	readonly display: string;
+	readonly lang: string;
+	readonly folder: string;
+}
+
+export async function run() {
 	try {
 		const config = new Config();
+		const root = process.cwd();
 
 		process.chdir(config.folder);
 		const cwd = process.cwd();
@@ -29,16 +37,22 @@ async function run() {
 			return;
 		}
 
+		const repoReadmes = new Set<ReadmeInfo>();
 		const readmes = files.flatMap(({ path: filePath }) => {
 			filePath = path.relative(cwd, filePath);
 			const data = config.parseFile(filePath);
 			if (!data) return [];
-			const display = new Intl.DisplayNames(data.lang, { type: 'language' }).of(data.lang);
-			return [{ ...data, filePath, display }];
+			const display = new Intl.DisplayNames(data.lang, { type: 'language' }).of(data.lang) ?? data.lang;
+			const readmeInfo: ReadmeInfo = { ...data, filePath, display };
+			if (data.lang === config.baseLocale) repoReadmes.add(readmeInfo);
+			return [readmeInfo];
 		});
 		if (readmes.length === 0) {
 			core.info('No readme files.');
 			return;
+		}
+		if (repoReadmes.size > 1) {
+			throw new Error('too many base locale file', { cause: repoReadmes });
 		}
 
 
@@ -58,6 +72,10 @@ async function run() {
 			// eslint-disable-next-line security/detect-non-literal-fs-filename
 			await fsp.writeFile(readme.filePath, contentNew);
 			core.info(`${readme.filePath} updated successfully.`);
+		}
+
+		for (const { filePath } of repoReadmes) {
+			fsp.copyFile(filePath, path.join(root, `README${path.extname(filePath)}`));
 		}
 	} catch (error) {
 		if (error instanceof Error) {

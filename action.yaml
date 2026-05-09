@@ -8,19 +8,23 @@ inputs:
         default: '.'
         required: false
     fileName:
-        description: 'The pattern of file name. RFC 6570.'
+        description: "The pattern of readme files' name, where `{lang}` is used to match the locale of the readme. RFC 6570."
         default: 'README.{lang}.md'
+        required: false
+    baseLocale:
+        description: "The `{lang}` of the readme that will be displayed as repo's README. If not provided, repo's README will not be changed."
+        default: ''
         required: false
     ignoredFolderNames:
         description: 'Names of folders to be ignored in `folder`'
         default: 'node_modules'
         required: false
     tag:
-        description: 'A piece of text that will be replaced by switcher generated'
+        description: 'A piece of text that will be replaced by generated switcher'
         default: '<!-- auto-readme-i18n-switcher-->'
         required: false
     switcherBody:
-        description: 'Template string for the framework of switcher. micromustache. all vars: `lines` the inner text of the switcher'
+        description: 'Template string for the outter of switcher. micromustache. all vars: `lines` the inner text of the switcher'
         default: '| {{lines}} |'
         required: false
     switcherLine:
