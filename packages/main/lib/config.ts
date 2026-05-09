@@ -5,10 +5,11 @@
  */
 declare module './config.ts';
 
-import { getInput, getMultilineInput } from '@actions/core';
+import { getBooleanInput, getInput, getMultilineInput } from '@actions/core';
 import { compile } from 'micromustache';
+import * as fs from 'node:fs';
+import path from 'node:path';
 import UriTemplate from 'uri-template-lite';
-import * as z from 'zod';
 
 function getInputDecorator<T>(getter: (key: string) => T, judger: (n: T) => boolean) {
 	return (_: unknown, context: ClassFieldDecoratorContext<unknown, T>) => {
@@ -22,42 +23,46 @@ function getInputDecorator<T>(getter: (key: string) => T, judger: (n: T) => bool
 }
 
 /**装饰器，获得一个字符串 Actions 参数 */
-const Input = getInputDecorator(getInput, Boolean);
+export const Input = getInputDecorator(getInput, Boolean);
 /**装饰器，获得一个字符串数组 Actions 参数 */
-const MultilineInput = getInputDecorator(getMultilineInput, input => input.length > 0);
-
-export const ParsedReadme = z.object({
-	folder: z.string(),
-	lang: z.string(),
-}).readonly();
-export type ParsedReadme = z.infer<typeof ParsedReadme>;
+export const MultilineInput = getInputDecorator(getMultilineInput, input => input.length > 0);
+/**装饰器，获得一个布尔值 Actions 参数 */
+export const BooleanInput = getInputDecorator(getBooleanInput, input => input !== void 0);
 
 /**配置 */
 export class Config {
-	/**自述文件文件夹 */
-	@Input readonly folder: string = '.';
+	/**项目文件夹 */
+	static readonly root = process.cwd();
+	/**变成绝对路径 */
+	static toReal(filePath: string) {
+		// eslint-disable-next-line security/detect-non-literal-fs-filename
+		return fs.realpathSync(filePath);
+	}
+	/**变成绝对路径 */
+	static toReals(filePaths: readonly string[]) {
+		return filePaths.map(n => this.toReal(n));
+	}
+	/**变成相对路径 */
+	static toRelative(this: typeof Config, filePath: string) {
+		return path.relative(this.root, filePath);
+	}
 
-	/**用作仓库说明文件的语言  */
-	@Input readonly baseLocale: string = '';
+	/**自述文件文件夹 */
+	@MultilineInput protected readonly folders: string[] = ['.'];
+	/**自述文件文件夹的绝对路径 */
+	readonly realFolders = Config.toReals(this.folders);
+
+	/**用作仓库说明文件的文件  */
+	@Input protected readonly repoReadme: string = '';
+	readonly realRepoReadme = this.repoReadme === '' ? void 0 : Config.toReal(this.repoReadme);
 
 	/**文件名的模式字符串  */
 	@Input protected readonly fileName: string = 'README.{lang}.md';
 	/**文件名的模式  */
-	protected readonly fileTemplate = new UriTemplate(`{folder}/${this.fileName}`);
-	/**解析文件名 */
-	parseFile(filePath: string): ParsedReadme | undefined {
-		const result = ParsedReadme.safeParse(this.fileTemplate.match(filePath));
-		return result.data;
-	}
-
-	/**要被忽略的文件夹名称 */
-	@MultilineInput protected readonly ignoredFolderNames: string[] = ['node_modules'];
-	/**要被忽略的文件夹名称 */
-	readonly ignoredFolderNamesSet = new Set(this.ignoredFolderNames);
+	readonly fileTemplate = new UriTemplate(`{folder}${this.fileName}`);
 
 	/**标签 */
 	@Input readonly tag: string = '<!-- auto-readme-i18n-switcher-->';
-
 
 	/**预先编译模板 */
 	private compile(template: string) {

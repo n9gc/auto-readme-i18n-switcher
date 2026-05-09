@@ -3,9 +3,9 @@ description: 'Automatically generate a language switcher table in README.md base
 author: 'n9gc'
 
 inputs:
-    folder:
+    folders:
         description: |
-            Folder of READMEs
+            Folders of READMEs, one line each
         default: '.'
         required: false
     fileName:
@@ -14,16 +14,11 @@ inputs:
             RFC 6570.
         default: 'README.{lang}.md'
         required: false
-    baseLocale:
+    repoReadme:
         description: |
-            The `{lang}` of the readme that will be displayed as repo's README.
+            The readme file that will be displayed as repo's README.
             If not provided, repo's README will not be changed.
         default: ''
-        required: false
-    ignoredFolderNames:
-        description: |
-            Names of folders to be ignored in `folder`
-        default: 'node_modules'
         required: false
     tag:
         description: |

@@ -1073,14 +1073,14 @@ var require_util = __commonJS({
         }
         const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
         let origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`;
-        let path2 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        let path3 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
         if (origin[origin.length - 1] === "/") {
           origin = origin.slice(0, origin.length - 1);
         }
-        if (path2 && path2[0] !== "/") {
-          path2 = `/${path2}`;
+        if (path3 && path3[0] !== "/") {
+          path3 = `/${path3}`;
         }
-        return new URL(`${origin}${path2}`);
+        return new URL(`${origin}${path3}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol)) {
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -1531,39 +1531,39 @@ var require_diagnostics = __commonJS({
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
         const {
-          request: { method, path: path2, origin }
+          request: { method, path: path3, origin }
         } = evt;
-        debuglog("sending request to %s %s/%s", method, origin, path2);
+        debuglog("sending request to %s %s/%s", method, origin, path3);
       });
       diagnosticsChannel.channel("undici:request:headers").subscribe((evt) => {
         const {
-          request: { method, path: path2, origin },
+          request: { method, path: path3, origin },
           response: { statusCode }
         } = evt;
         debuglog(
           "received response to %s %s/%s - HTTP %d",
           method,
           origin,
-          path2,
+          path3,
           statusCode
         );
       });
       diagnosticsChannel.channel("undici:request:trailers").subscribe((evt) => {
         const {
-          request: { method, path: path2, origin }
+          request: { method, path: path3, origin }
         } = evt;
-        debuglog("trailers received from %s %s/%s", method, origin, path2);
+        debuglog("trailers received from %s %s/%s", method, origin, path3);
       });
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
-          request: { method, path: path2, origin },
+          request: { method, path: path3, origin },
           error: error2
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method,
           origin,
-          path2,
+          path3,
           error2.message
         );
       });
@@ -1612,9 +1612,9 @@ var require_diagnostics = __commonJS({
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
           const {
-            request: { method, path: path2, origin }
+            request: { method, path: path3, origin }
           } = evt;
-          debuglog("sending request to %s %s/%s", method, origin, path2);
+          debuglog("sending request to %s %s/%s", method, origin, path3);
         });
       }
       diagnosticsChannel.channel("undici:websocket:open").subscribe((evt) => {
@@ -1677,7 +1677,7 @@ var require_request = __commonJS({
     var kHandler = /* @__PURE__ */ Symbol("handler");
     var Request = class {
       constructor(origin, {
-        path: path2,
+        path: path3,
         method,
         body,
         headers,
@@ -1692,11 +1692,11 @@ var require_request = __commonJS({
         expectContinue,
         servername
       }, handler) {
-        if (typeof path2 !== "string") {
+        if (typeof path3 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path2[0] !== "/" && !(path2.startsWith("http://") || path2.startsWith("https://")) && method !== "CONNECT") {
+        } else if (path3[0] !== "/" && !(path3.startsWith("http://") || path3.startsWith("https://")) && method !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.test(path2)) {
+        } else if (invalidPathRegex.test(path3)) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method !== "string") {
@@ -1762,7 +1762,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? buildURL(path2, query) : path2;
+        this.path = query ? buildURL(path3, query) : path3;
         this.origin = origin;
         this.idempotent = idempotent == null ? method === "HEAD" || method === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -6288,7 +6288,7 @@ var require_client_h1 = __commonJS({
       return method !== "GET" && method !== "HEAD" && method !== "OPTIONS" && method !== "TRACE" && method !== "CONNECT";
     }
     function writeH1(client, request) {
-      const { method, path: path2, host, upgrade, blocking, reset } = request;
+      const { method, path: path3, host, upgrade, blocking, reset } = request;
       let { body, headers, contentLength } = request;
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH" || method === "QUERY" || method === "PROPFIND" || method === "PROPPATCH";
       if (util.isFormDataLike(body)) {
@@ -6354,7 +6354,7 @@ var require_client_h1 = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header = `${method} ${path2} HTTP/1.1\r
+      let header = `${method} ${path3} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header += `host: ${host}\r
@@ -6880,7 +6880,7 @@ var require_client_h2 = __commonJS({
     }
     function writeH2(client, request) {
       const session = client[kHTTP2Session];
-      const { method, path: path2, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
+      const { method, path: path3, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
       let { body } = request;
       if (upgrade) {
         util.errorRequest(client, request, new Error("Upgrade not supported for H2"));
@@ -6947,7 +6947,7 @@ var require_client_h2 = __commonJS({
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path2;
+      headers[HTTP2_HEADER_PATH] = path3;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH";
       if (body && typeof body.read === "function") {
@@ -7300,9 +7300,9 @@ var require_redirect_handler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path2 = search ? `${pathname}${search}` : pathname;
+        const path3 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path2;
+        this.opts.path = path3;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -8537,10 +8537,10 @@ var require_proxy_agent = __commonJS({
         };
         const {
           origin,
-          path: path2 = "/",
+          path: path3 = "/",
           headers = {}
         } = opts;
-        opts.path = origin + path2;
+        opts.path = origin + path3;
         if (!("host" in headers) && !("Host" in headers)) {
           const { host } = new URL2(origin);
           headers.host = host;
@@ -10461,20 +10461,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path2) {
-      if (typeof path2 !== "string") {
-        return path2;
+    function safeUrl(path3) {
+      if (typeof path3 !== "string") {
+        return path3;
       }
-      const pathSegments = path2.split("?");
+      const pathSegments = path3.split("?");
       if (pathSegments.length !== 2) {
-        return path2;
+        return path3;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path2, method, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path2);
+    function matchKey(mockDispatch2, { path: path3, method, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path3);
       const methodMatch = matchValue(mockDispatch2.method, method);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10496,7 +10496,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key) {
       const basePath = key.query ? buildURL(key.path, key.query) : key.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path2 }) => matchValue(safeUrl(path2), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path3 }) => matchValue(safeUrl(path3), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10534,9 +10534,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path2, method, body, headers, query } = opts;
+      const { path: path3, method, body, headers, query } = opts;
       return {
-        path: path2,
+        path: path3,
         method,
         body,
         headers,
@@ -10999,10 +10999,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method, path: path2, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method, path: path3, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method,
             Origin: origin,
-            Path: path2,
+            Path: path3,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -12637,15 +12637,15 @@ var require_request2 = __commonJS({
           signal = input[kSignal];
         }
         const origin = environmentSettingsObject.settingsObject.origin;
-        let window2 = "client";
+        let window = "client";
         if (request.window?.constructor?.name === "EnvironmentSettingsObject" && sameOrigin(request.window, origin)) {
-          window2 = request.window;
+          window = request.window;
         }
         if (init.window != null) {
-          throw new TypeError(`'window' option '${window2}' must be null`);
+          throw new TypeError(`'window' option '${window}' must be null`);
         }
         if ("window" in init) {
-          window2 = "no-window";
+          window = "no-window";
         }
         request = makeRequest({
           // URL request’s URL.
@@ -12660,7 +12660,7 @@ var require_request2 = __commonJS({
           // client This’s relevant settings object.
           client: environmentSettingsObject.settingsObject,
           // window window.
-          window: window2,
+          window,
           // priority request’s priority.
           priority: request.priority,
           // origin request’s origin. The propagation of the origin is only significant for navigation requests
@@ -15883,9 +15883,9 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path2) {
-      for (let i = 0; i < path2.length; ++i) {
-        const code = path2.charCodeAt(i);
+    function validateCookiePath(path3) {
+      for (let i = 0; i < path3.length; ++i) {
+        const code = path3.charCodeAt(i);
         if (code < 32 || // exclude CTLs (0-31)
         code === 127 || // DEL
         code === 59) {
@@ -18562,11 +18562,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path2 = opts.path;
+          let path3 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path2 = `/${path2}`;
+            path3 = `/${path3}`;
           }
-          url = new URL(util.parseOrigin(url).origin + path2);
+          url = new URL(util.parseOrigin(url).origin + path3);
         } else {
           if (!opts) {
             opts = typeof url === "object" ? url : {};
@@ -18634,1324 +18634,6 @@ var require_undici = __commonJS({
     module.exports.mockErrors = mockErrors;
     var { EventSource } = require_eventsource();
     module.exports.EventSource = EventSource;
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/providers/async.js
-var require_async = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/providers/async.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.AsyncProvider = void 0;
-    var AsyncProvider = class {
-      #reader;
-      constructor(reader) {
-        this.#reader = reader;
-      }
-      read(root, callback) {
-        const entries = [];
-        this.#reader.onError((error2) => {
-          callFailureCallback(callback, error2);
-        });
-        this.#reader.onEntry((entry) => {
-          entries.push(entry);
-        });
-        this.#reader.onEnd(() => {
-          callSuccessCallback(callback, entries);
-        });
-        this.#reader.read(root);
-      }
-    };
-    exports.AsyncProvider = AsyncProvider;
-    function callFailureCallback(callback, error2) {
-      callback(error2);
-    }
-    function callSuccessCallback(callback, entries) {
-      callback(null, entries);
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/providers/stream.js
-var require_stream = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/providers/stream.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.StreamProvider = void 0;
-    var node_stream_1 = __require("node:stream");
-    var StreamProvider = class {
-      #reader;
-      #stream;
-      constructor(reader) {
-        this.#reader = reader;
-        this.#stream = this.#createOutputStream();
-      }
-      read(root) {
-        this.#reader.onError((error2) => {
-          this.#stream.emit("error", error2);
-        });
-        this.#reader.onEntry((entry) => {
-          this.#stream.push(entry);
-        });
-        this.#reader.onEnd(() => {
-          this.#stream.push(null);
-        });
-        this.#reader.read(root);
-        return this.#stream;
-      }
-      #createOutputStream() {
-        return new node_stream_1.Readable({
-          objectMode: true,
-          read: () => {
-          },
-          destroy: (error2, callback) => {
-            if (!this.#reader.isDestroyed) {
-              this.#reader.destroy();
-            }
-            callback(error2);
-          }
-        });
-      }
-    };
-    exports.StreamProvider = StreamProvider;
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/providers/sync.js
-var require_sync = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/providers/sync.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.SyncProvider = void 0;
-    var SyncProvider = class {
-      #reader;
-      constructor(reader) {
-        this.#reader = reader;
-      }
-      read(root) {
-        return this.#reader.read(root);
-      }
-    };
-    exports.SyncProvider = SyncProvider;
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/providers/index.js
-var require_providers = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/providers/index.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      var desc = Object.getOwnPropertyDescriptor(m, k);
-      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-        desc = { enumerable: true, get: function() {
-          return m[k];
-        } };
-      }
-      Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      o[k2] = m[k];
-    }));
-    var __exportStar = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
-    };
-    Object.defineProperty(exports, "__esModule", { value: true });
-    __exportStar(require_async(), exports);
-    __exportStar(require_stream(), exports);
-    __exportStar(require_sync(), exports);
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/providers/async.js
-var require_async2 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/providers/async.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.read = read;
-    function read(path2, settings, callback) {
-      settings.fs.lstat(path2, (lstatError, lstat2) => {
-        if (lstatError !== null) {
-          callFailureCallback(callback, lstatError);
-          return;
-        }
-        if (!lstat2.isSymbolicLink() || !settings.followSymbolicLink) {
-          callSuccessCallback(callback, lstat2);
-          return;
-        }
-        settings.fs.stat(path2, (statError, stat2) => {
-          if (statError !== null) {
-            if (settings.throwErrorOnBrokenSymbolicLink) {
-              callFailureCallback(callback, statError);
-              return;
-            }
-            callSuccessCallback(callback, lstat2);
-            return;
-          }
-          if (settings.markSymbolicLink) {
-            stat2.isSymbolicLink = () => true;
-          }
-          callSuccessCallback(callback, stat2);
-        });
-      });
-    }
-    function callFailureCallback(callback, error2) {
-      callback(error2);
-    }
-    function callSuccessCallback(callback, result) {
-      callback(null, result);
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/providers/sync.js
-var require_sync2 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/providers/sync.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.read = read;
-    function read(path2, settings) {
-      const lstat2 = settings.fs.lstatSync(path2);
-      if (!lstat2.isSymbolicLink() || !settings.followSymbolicLink) {
-        return lstat2;
-      }
-      try {
-        const stat2 = settings.fs.statSync(path2);
-        if (settings.markSymbolicLink) {
-          stat2.isSymbolicLink = () => true;
-        }
-        return stat2;
-      } catch (error2) {
-        if (!settings.throwErrorOnBrokenSymbolicLink) {
-          return lstat2;
-        }
-        throw error2;
-      }
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/adapters/fs.js
-var require_fs = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/adapters/fs.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.FILE_SYSTEM_ADAPTER = void 0;
-    exports.createFileSystemAdapter = createFileSystemAdapter;
-    var fs2 = __require("node:fs");
-    exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs2.lstat,
-      stat: fs2.stat,
-      lstatSync: fs2.lstatSync,
-      statSync: fs2.statSync
-    };
-    function createFileSystemAdapter(fsMethods) {
-      if (fsMethods === void 0) {
-        return exports.FILE_SYSTEM_ADAPTER;
-      }
-      return {
-        ...exports.FILE_SYSTEM_ADAPTER,
-        ...fsMethods
-      };
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/settings.js
-var require_settings = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Settings = void 0;
-    var fs2 = require_fs();
-    var Settings = class {
-      followSymbolicLink;
-      fs;
-      markSymbolicLink;
-      throwErrorOnBrokenSymbolicLink;
-      constructor(options = {}) {
-        this.followSymbolicLink = options.followSymbolicLink ?? true;
-        this.fs = fs2.createFileSystemAdapter(options.fs);
-        this.markSymbolicLink = options.markSymbolicLink ?? false;
-        this.throwErrorOnBrokenSymbolicLink = options.throwErrorOnBrokenSymbolicLink ?? true;
-      }
-    };
-    exports.Settings = Settings;
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/stat.js
-var require_stat = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/stat.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.stat = stat2;
-    exports.statSync = statSync;
-    var async = require_async2();
-    var sync = require_sync2();
-    var settings_1 = require_settings();
-    function stat2(path2, optionsOrSettingsOrCallback, callback) {
-      if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path2, getSettings(), optionsOrSettingsOrCallback);
-        return;
-      }
-      async.read(path2, getSettings(optionsOrSettingsOrCallback), callback);
-    }
-    function statSync(path2, optionsOrSettings) {
-      const settings = getSettings(optionsOrSettings);
-      return sync.read(path2, settings);
-    }
-    function getSettings(settingsOrOptions = {}) {
-      if (settingsOrOptions instanceof settings_1.Settings) {
-        return settingsOrOptions;
-      }
-      return new settings_1.Settings(settingsOrOptions);
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/index.js
-var require_out = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.stat@4.0.0/node_modules/@nodelib/fs.stat/out/index.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Settings = exports.statSync = exports.stat = void 0;
-    var stat_1 = require_stat();
-    Object.defineProperty(exports, "stat", { enumerable: true, get: function() {
-      return stat_1.stat;
-    } });
-    Object.defineProperty(exports, "statSync", { enumerable: true, get: function() {
-      return stat_1.statSync;
-    } });
-    var settings_1 = require_settings();
-    Object.defineProperty(exports, "Settings", { enumerable: true, get: function() {
-      return settings_1.Settings;
-    } });
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/adapters/fs.js
-var require_fs2 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/adapters/fs.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.FILE_SYSTEM_ADAPTER = void 0;
-    exports.createFileSystemAdapter = createFileSystemAdapter;
-    var fs2 = __require("node:fs");
-    exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs2.lstat,
-      stat: fs2.stat,
-      lstatSync: fs2.lstatSync,
-      statSync: fs2.statSync,
-      readdir: fs2.readdir,
-      readdirSync: fs2.readdirSync
-    };
-    function createFileSystemAdapter(fsMethods) {
-      if (fsMethods === void 0) {
-        return exports.FILE_SYSTEM_ADAPTER;
-      }
-      return {
-        ...exports.FILE_SYSTEM_ADAPTER,
-        ...fsMethods
-      };
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/settings.js
-var require_settings2 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Settings = void 0;
-    var path2 = __require("node:path");
-    var fsStat = require_out();
-    var fs2 = require_fs2();
-    var Settings = class {
-      followSymbolicLinks;
-      fs;
-      pathSegmentSeparator;
-      stats;
-      throwErrorOnBrokenSymbolicLink;
-      fsStatSettings;
-      constructor(options = {}) {
-        this.followSymbolicLinks = options.followSymbolicLinks ?? false;
-        this.fs = fs2.createFileSystemAdapter(options.fs);
-        this.pathSegmentSeparator = options.pathSegmentSeparator ?? path2.sep;
-        this.stats = options.stats ?? false;
-        this.throwErrorOnBrokenSymbolicLink = options.throwErrorOnBrokenSymbolicLink ?? true;
-        this.fsStatSettings = new fsStat.Settings({
-          followSymbolicLink: this.followSymbolicLinks,
-          fs: this.fs,
-          throwErrorOnBrokenSymbolicLink: this.throwErrorOnBrokenSymbolicLink
-        });
-      }
-    };
-    exports.Settings = Settings;
-  }
-});
-
-// ../../node_modules/.pnpm/queue-microtask@1.2.3/node_modules/queue-microtask/index.js
-var require_queue_microtask = __commonJS({
-  "../../node_modules/.pnpm/queue-microtask@1.2.3/node_modules/queue-microtask/index.js"(exports, module) {
-    var promise;
-    module.exports = typeof queueMicrotask === "function" ? queueMicrotask.bind(typeof window !== "undefined" ? window : global) : (cb) => (promise || (promise = Promise.resolve())).then(cb).catch((err) => setTimeout(() => {
-      throw err;
-    }, 0));
-  }
-});
-
-// ../../node_modules/.pnpm/run-parallel@1.2.0/node_modules/run-parallel/index.js
-var require_run_parallel = __commonJS({
-  "../../node_modules/.pnpm/run-parallel@1.2.0/node_modules/run-parallel/index.js"(exports, module) {
-    module.exports = runParallel;
-    var queueMicrotask2 = require_queue_microtask();
-    function runParallel(tasks, cb) {
-      let results, pending, keys;
-      let isSync = true;
-      if (Array.isArray(tasks)) {
-        results = [];
-        pending = tasks.length;
-      } else {
-        keys = Object.keys(tasks);
-        results = {};
-        pending = keys.length;
-      }
-      function done(err) {
-        function end() {
-          if (cb) cb(err, results);
-          cb = null;
-        }
-        if (isSync) queueMicrotask2(end);
-        else end();
-      }
-      function each(i, err, result) {
-        results[i] = result;
-        if (--pending === 0 || err) {
-          done(err);
-        }
-      }
-      if (!pending) {
-        done(null);
-      } else if (keys) {
-        keys.forEach(function(key) {
-          tasks[key](function(err, result) {
-            each(key, err, result);
-          });
-        });
-      } else {
-        tasks.forEach(function(task, i) {
-          task(function(err, result) {
-            each(i, err, result);
-          });
-        });
-      }
-      isSync = false;
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/utils/fs.js
-var require_fs3 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/utils/fs.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.DirentFromStats = void 0;
-    exports.createDirentFromStats = createDirentFromStats;
-    var fs2 = __require("node:fs");
-    var kStats = /* @__PURE__ */ Symbol("stats");
-    function createDirentFromStats(name, stats, parentPath) {
-      return new DirentFromStats(name, stats, parentPath);
-    }
-    var DirentFromStats = class extends fs2.Dirent {
-      [kStats];
-      constructor(name, stats, parentPath) {
-        super(name, null, parentPath);
-        this[kStats] = stats;
-      }
-    };
-    exports.DirentFromStats = DirentFromStats;
-    for (const key of Reflect.ownKeys(fs2.Dirent.prototype)) {
-      const name = key;
-      const descriptor = Object.getOwnPropertyDescriptor(fs2.Dirent.prototype, name);
-      if (descriptor?.writable === false || descriptor?.set === void 0) {
-        continue;
-      }
-      DirentFromStats.prototype[name] = function() {
-        return this[kStats][name]();
-      };
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/utils/index.js
-var require_utils2 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/utils/index.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.fs = void 0;
-    exports.fs = require_fs3();
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/providers/common.js
-var require_common = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/providers/common.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.joinPathSegments = joinPathSegments;
-    function joinPathSegments(a, b, separator) {
-      if (a.endsWith(separator)) {
-        return a + b;
-      }
-      return a + separator + b;
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/providers/async.js
-var require_async3 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/providers/async.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.read = read;
-    var fsStat = require_out();
-    var rpl = require_run_parallel();
-    var utils = require_utils2();
-    var common = require_common();
-    function read(directory, settings, callback) {
-      settings.fs.readdir(directory, { withFileTypes: true }, (readdirError, dirents) => {
-        if (readdirError !== null) {
-          callFailureCallback(callback, readdirError);
-          return;
-        }
-        const entries = dirents.map((dirent) => ({
-          dirent,
-          name: dirent.name,
-          path: common.joinPathSegments(directory, dirent.name, settings.pathSegmentSeparator)
-        }));
-        if (!settings.stats && !settings.followSymbolicLinks) {
-          callSuccessCallback(callback, entries);
-          return;
-        }
-        const tasks = makeRplTasks(directory, entries, settings);
-        rpl(tasks, (rplError) => {
-          if (rplError !== null) {
-            callFailureCallback(callback, rplError);
-            return;
-          }
-          callSuccessCallback(callback, entries);
-        });
-      });
-    }
-    function makeRplTasks(directory, entries, settings) {
-      const tasks = [];
-      for (const entry of entries) {
-        const task = makeRplTask(directory, entry, settings);
-        if (task !== void 0) {
-          tasks.push(task);
-        }
-      }
-      return tasks;
-    }
-    function makeRplTask(directory, entry, settings) {
-      const action = getStatsAction(entry, settings);
-      if (action === void 0) {
-        return void 0;
-      }
-      return (done) => {
-        action((error2, stats) => {
-          if (error2 !== null) {
-            done(settings.throwErrorOnBrokenSymbolicLink ? error2 : null);
-            return;
-          }
-          if (settings.stats) {
-            entry.stats = stats;
-          }
-          if (settings.followSymbolicLinks) {
-            entry.dirent = utils.fs.createDirentFromStats(entry.name, stats, directory);
-          }
-          done(null, entry);
-        });
-      };
-    }
-    function getStatsAction(entry, settings) {
-      if (settings.stats) {
-        return (callback) => {
-          fsStat.stat(entry.path, settings.fsStatSettings, callback);
-        };
-      }
-      if (settings.followSymbolicLinks && entry.dirent.isSymbolicLink()) {
-        return (callback) => {
-          settings.fs.stat(entry.path, callback);
-        };
-      }
-      return void 0;
-    }
-    function callFailureCallback(callback, error2) {
-      callback(error2);
-    }
-    function callSuccessCallback(callback, result) {
-      callback(null, result);
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/providers/sync.js
-var require_sync3 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/providers/sync.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.read = read;
-    var fsStat = require_out();
-    var utils = require_utils2();
-    var common = require_common();
-    function read(directory, settings) {
-      const dirents = settings.fs.readdirSync(directory, { withFileTypes: true });
-      return dirents.map((dirent) => {
-        const entry = {
-          dirent,
-          name: dirent.name,
-          path: common.joinPathSegments(directory, dirent.name, settings.pathSegmentSeparator)
-        };
-        if (settings.stats) {
-          entry.stats = fsStat.statSync(entry.path, settings.fsStatSettings);
-        }
-        if (settings.followSymbolicLinks && entry.dirent.isSymbolicLink()) {
-          try {
-            const stats = entry.stats ?? settings.fs.statSync(entry.path);
-            entry.dirent = utils.fs.createDirentFromStats(entry.name, stats, directory);
-          } catch (error2) {
-            if (settings.throwErrorOnBrokenSymbolicLink) {
-              throw error2;
-            }
-          }
-        }
-        return entry;
-      });
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/scandir.js
-var require_scandir = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/scandir.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.scandir = scandir;
-    exports.scandirSync = scandirSync;
-    var settings_1 = require_settings2();
-    var async = require_async3();
-    var sync = require_sync3();
-    function scandir(path2, optionsOrSettingsOrCallback, callback) {
-      if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path2, getSettings(), optionsOrSettingsOrCallback);
-        return;
-      }
-      async.read(path2, getSettings(optionsOrSettingsOrCallback), callback);
-    }
-    function scandirSync(path2, optionsOrSettings) {
-      const settings = getSettings(optionsOrSettings);
-      return sync.read(path2, settings);
-    }
-    function getSettings(settingsOrOptions = {}) {
-      if (settingsOrOptions instanceof settings_1.Settings) {
-        return settingsOrOptions;
-      }
-      return new settings_1.Settings(settingsOrOptions);
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/index.js
-var require_out2 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.scandir@4.0.1/node_modules/@nodelib/fs.scandir/out/index.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Settings = exports.scandirSync = exports.scandir = void 0;
-    var scandir_1 = require_scandir();
-    Object.defineProperty(exports, "scandir", { enumerable: true, get: function() {
-      return scandir_1.scandir;
-    } });
-    Object.defineProperty(exports, "scandirSync", { enumerable: true, get: function() {
-      return scandir_1.scandirSync;
-    } });
-    var settings_1 = require_settings2();
-    Object.defineProperty(exports, "Settings", { enumerable: true, get: function() {
-      return settings_1.Settings;
-    } });
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/settings.js
-var require_settings3 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Settings = void 0;
-    var path2 = __require("node:path");
-    var fsScandir = require_out2();
-    var Settings = class {
-      basePath;
-      concurrency;
-      deepFilter;
-      entryFilter;
-      errorFilter;
-      pathSegmentSeparator;
-      fsScandirSettings;
-      signal;
-      constructor(options = {}) {
-        this.basePath = options.basePath ?? void 0;
-        this.concurrency = options.concurrency ?? Number.POSITIVE_INFINITY;
-        this.deepFilter = options.deepFilter ?? null;
-        this.entryFilter = options.entryFilter ?? null;
-        this.errorFilter = options.errorFilter ?? null;
-        this.pathSegmentSeparator = options.pathSegmentSeparator ?? path2.sep;
-        this.signal = options.signal;
-        this.fsScandirSettings = new fsScandir.Settings({
-          followSymbolicLinks: options.followSymbolicLinks,
-          fs: options.fs,
-          pathSegmentSeparator: this.pathSegmentSeparator,
-          stats: options.stats,
-          throwErrorOnBrokenSymbolicLink: options.throwErrorOnBrokenSymbolicLink
-        });
-      }
-    };
-    exports.Settings = Settings;
-  }
-});
-
-// ../../node_modules/.pnpm/reusify@1.1.0/node_modules/reusify/reusify.js
-var require_reusify = __commonJS({
-  "../../node_modules/.pnpm/reusify@1.1.0/node_modules/reusify/reusify.js"(exports, module) {
-    "use strict";
-    function reusify(Constructor) {
-      var head = new Constructor();
-      var tail = head;
-      function get() {
-        var current = head;
-        if (current.next) {
-          head = current.next;
-        } else {
-          head = new Constructor();
-          tail = head;
-        }
-        current.next = null;
-        return current;
-      }
-      function release(obj) {
-        tail.next = obj;
-        tail = obj;
-      }
-      return {
-        get,
-        release
-      };
-    }
-    module.exports = reusify;
-  }
-});
-
-// ../../node_modules/.pnpm/fastq@1.20.1/node_modules/fastq/queue.js
-var require_queue = __commonJS({
-  "../../node_modules/.pnpm/fastq@1.20.1/node_modules/fastq/queue.js"(exports, module) {
-    "use strict";
-    var reusify = require_reusify();
-    function fastqueue(context, worker, _concurrency) {
-      if (typeof context === "function") {
-        _concurrency = worker;
-        worker = context;
-        context = null;
-      }
-      if (!(_concurrency >= 1)) {
-        throw new Error("fastqueue concurrency must be equal to or greater than 1");
-      }
-      var cache = reusify(Task);
-      var queueHead = null;
-      var queueTail = null;
-      var _running = 0;
-      var errorHandler = null;
-      var self = {
-        push,
-        drain: noop,
-        saturated: noop,
-        pause,
-        paused: false,
-        get concurrency() {
-          return _concurrency;
-        },
-        set concurrency(value) {
-          if (!(value >= 1)) {
-            throw new Error("fastqueue concurrency must be equal to or greater than 1");
-          }
-          _concurrency = value;
-          if (self.paused) return;
-          for (; queueHead && _running < _concurrency; ) {
-            _running++;
-            release();
-          }
-        },
-        running,
-        resume,
-        idle,
-        length,
-        getQueue,
-        unshift,
-        empty: noop,
-        kill,
-        killAndDrain,
-        error: error2,
-        abort
-      };
-      return self;
-      function running() {
-        return _running;
-      }
-      function pause() {
-        self.paused = true;
-      }
-      function length() {
-        var current = queueHead;
-        var counter = 0;
-        while (current) {
-          current = current.next;
-          counter++;
-        }
-        return counter;
-      }
-      function getQueue() {
-        var current = queueHead;
-        var tasks = [];
-        while (current) {
-          tasks.push(current.value);
-          current = current.next;
-        }
-        return tasks;
-      }
-      function resume() {
-        if (!self.paused) return;
-        self.paused = false;
-        if (queueHead === null) {
-          _running++;
-          release();
-          return;
-        }
-        for (; queueHead && _running < _concurrency; ) {
-          _running++;
-          release();
-        }
-      }
-      function idle() {
-        return _running === 0 && self.length() === 0;
-      }
-      function push(value, done) {
-        var current = cache.get();
-        current.context = context;
-        current.release = release;
-        current.value = value;
-        current.callback = done || noop;
-        current.errorHandler = errorHandler;
-        if (_running >= _concurrency || self.paused) {
-          if (queueTail) {
-            queueTail.next = current;
-            queueTail = current;
-          } else {
-            queueHead = current;
-            queueTail = current;
-            self.saturated();
-          }
-        } else {
-          _running++;
-          worker.call(context, current.value, current.worked);
-        }
-      }
-      function unshift(value, done) {
-        var current = cache.get();
-        current.context = context;
-        current.release = release;
-        current.value = value;
-        current.callback = done || noop;
-        current.errorHandler = errorHandler;
-        if (_running >= _concurrency || self.paused) {
-          if (queueHead) {
-            current.next = queueHead;
-            queueHead = current;
-          } else {
-            queueHead = current;
-            queueTail = current;
-            self.saturated();
-          }
-        } else {
-          _running++;
-          worker.call(context, current.value, current.worked);
-        }
-      }
-      function release(holder) {
-        if (holder) {
-          cache.release(holder);
-        }
-        var next = queueHead;
-        if (next && _running <= _concurrency) {
-          if (!self.paused) {
-            if (queueTail === queueHead) {
-              queueTail = null;
-            }
-            queueHead = next.next;
-            next.next = null;
-            worker.call(context, next.value, next.worked);
-            if (queueTail === null) {
-              self.empty();
-            }
-          } else {
-            _running--;
-          }
-        } else if (--_running === 0) {
-          self.drain();
-        }
-      }
-      function kill() {
-        queueHead = null;
-        queueTail = null;
-        self.drain = noop;
-      }
-      function killAndDrain() {
-        queueHead = null;
-        queueTail = null;
-        self.drain();
-        self.drain = noop;
-      }
-      function abort() {
-        var current = queueHead;
-        queueHead = null;
-        queueTail = null;
-        while (current) {
-          var next = current.next;
-          var callback = current.callback;
-          var errorHandler2 = current.errorHandler;
-          var val = current.value;
-          var context2 = current.context;
-          current.value = null;
-          current.callback = noop;
-          current.errorHandler = null;
-          if (errorHandler2) {
-            errorHandler2(new Error("abort"), val);
-          }
-          callback.call(context2, new Error("abort"));
-          current.release(current);
-          current = next;
-        }
-        self.drain = noop;
-      }
-      function error2(handler) {
-        errorHandler = handler;
-      }
-    }
-    function noop() {
-    }
-    function Task() {
-      this.value = null;
-      this.callback = noop;
-      this.next = null;
-      this.release = noop;
-      this.context = null;
-      this.errorHandler = null;
-      var self = this;
-      this.worked = function worked(err, result) {
-        var callback = self.callback;
-        var errorHandler = self.errorHandler;
-        var val = self.value;
-        self.value = null;
-        self.callback = noop;
-        if (self.errorHandler) {
-          errorHandler(err, val);
-        }
-        callback.call(self.context, err, result);
-        self.release(self);
-      };
-    }
-    function queueAsPromised(context, worker, _concurrency) {
-      if (typeof context === "function") {
-        _concurrency = worker;
-        worker = context;
-        context = null;
-      }
-      function asyncWrapper(arg, cb) {
-        worker.call(this, arg).then(function(res) {
-          cb(null, res);
-        }, cb);
-      }
-      var queue = fastqueue(context, asyncWrapper, _concurrency);
-      var pushCb = queue.push;
-      var unshiftCb = queue.unshift;
-      queue.push = push;
-      queue.unshift = unshift;
-      queue.drained = drained;
-      return queue;
-      function push(value) {
-        var p = new Promise(function(resolve, reject) {
-          pushCb(value, function(err, result) {
-            if (err) {
-              reject(err);
-              return;
-            }
-            resolve(result);
-          });
-        });
-        p.catch(noop);
-        return p;
-      }
-      function unshift(value) {
-        var p = new Promise(function(resolve, reject) {
-          unshiftCb(value, function(err, result) {
-            if (err) {
-              reject(err);
-              return;
-            }
-            resolve(result);
-          });
-        });
-        p.catch(noop);
-        return p;
-      }
-      function drained() {
-        var p = new Promise(function(resolve) {
-          process.nextTick(function() {
-            if (queue.idle()) {
-              resolve();
-            } else {
-              var previousDrain = queue.drain;
-              queue.drain = function() {
-                if (typeof previousDrain === "function") previousDrain();
-                resolve();
-                queue.drain = previousDrain;
-              };
-            }
-          });
-        });
-        return p;
-      }
-    }
-    module.exports = fastqueue;
-    module.exports.promise = queueAsPromised;
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/readers/common.js
-var require_common2 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/readers/common.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.isFatalError = isFatalError;
-    exports.isAppliedFilter = isAppliedFilter;
-    exports.replacePathSegmentSeparator = replacePathSegmentSeparator;
-    exports.joinPathSegments = joinPathSegments;
-    function isFatalError(settings, error2) {
-      if (settings.errorFilter === null) {
-        return true;
-      }
-      return !settings.errorFilter(error2);
-    }
-    function isAppliedFilter(filter, value) {
-      return filter === null || filter(value);
-    }
-    function replacePathSegmentSeparator(filepath, separator) {
-      return filepath.split(/[/\\]/).join(separator);
-    }
-    function joinPathSegments(a, b, separator) {
-      if (a === "") {
-        return b;
-      }
-      if (a.endsWith(separator)) {
-        return a + b;
-      }
-      return a + separator + b;
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/readers/async.js
-var require_async4 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/readers/async.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.AsyncReader = void 0;
-    var node_events_1 = __require("node:events");
-    var fastq = require_queue();
-    var common = require_common2();
-    var AsyncReaderEmitter = class {
-      #emitter = new node_events_1.EventEmitter();
-      onEntry(callback) {
-        this.#emitter.on("entry", callback);
-      }
-      onError(callback) {
-        this.#emitter.once("error", callback);
-      }
-      onEnd(callback) {
-        this.#emitter.once("end", callback);
-      }
-      _emitEntry(entry) {
-        this.#emitter.emit("entry", entry);
-      }
-      _emitEnd() {
-        this.#emitter.emit("end");
-      }
-      _emitError(error2) {
-        this.#emitter.emit("error", error2);
-      }
-    };
-    var AsyncReader = class extends AsyncReaderEmitter {
-      #isFatalError = false;
-      #isDestroyed = false;
-      #fs;
-      #settings;
-      #queue;
-      constructor(fs2, settings) {
-        super();
-        const queue = fastq(this.#worker.bind(this), settings.concurrency);
-        queue.drain = () => {
-          if (!this.#isFatalError) {
-            this._emitEnd();
-          }
-        };
-        this.#fs = fs2;
-        this.#settings = settings;
-        this.#queue = queue;
-      }
-      read(root) {
-        this.#isFatalError = false;
-        this.#isDestroyed = false;
-        this.#attachAbortSignal();
-        const directory = common.replacePathSegmentSeparator(root, this.#settings.pathSegmentSeparator);
-        this.#pushToQueue(directory, this.#settings.basePath);
-      }
-      get isDestroyed() {
-        return this.#isDestroyed;
-      }
-      destroy() {
-        if (this.#isDestroyed) {
-          return;
-        }
-        this.#isDestroyed = true;
-        this.#queue.killAndDrain();
-      }
-      #attachAbortSignal() {
-        const signal = this.#settings.signal;
-        if (signal?.aborted === true) {
-          this.#handleError(signal.reason);
-        }
-        signal?.addEventListener("abort", () => {
-          this.#handleError(signal.reason);
-        }, { once: true });
-      }
-      #pushToQueue(directory, base) {
-        this.#queue.push({ directory, base }, (error2) => {
-          if (error2 !== null) {
-            this.#handleError(error2);
-          }
-        });
-      }
-      #worker(item, done) {
-        this.#fs.scandir(item.directory, this.#settings.fsScandirSettings, (error2, entries) => {
-          if (error2 !== null) {
-            done(error2, void 0);
-            return;
-          }
-          try {
-            for (const entry of entries) {
-              this.#handleEntry(entry, item.base);
-            }
-          } catch (error3) {
-            done(error3, void 0);
-            return;
-          }
-          done(null, void 0);
-        });
-      }
-      #handleError(error2) {
-        if (this.#isDestroyed || !common.isFatalError(this.#settings, error2)) {
-          return;
-        }
-        this.#isFatalError = true;
-        this.#isDestroyed = true;
-        this._emitError(error2);
-      }
-      #handleEntry(entry, base) {
-        if (this.#isDestroyed || this.#isFatalError) {
-          return;
-        }
-        const fullpath = entry.path;
-        if (base !== void 0) {
-          entry.path = common.joinPathSegments(base, entry.name, this.#settings.pathSegmentSeparator);
-        }
-        if (common.isAppliedFilter(this.#settings.entryFilter, entry)) {
-          this._emitEntry(entry);
-        }
-        if (entry.dirent.isDirectory() && common.isAppliedFilter(this.#settings.deepFilter, entry)) {
-          this.#pushToQueue(fullpath, base === void 0 ? void 0 : entry.path);
-        }
-      }
-    };
-    exports.AsyncReader = AsyncReader;
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/readers/sync.js
-var require_sync4 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/readers/sync.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.SyncReader = void 0;
-    var common = require_common2();
-    var SyncReader = class {
-      #fs;
-      #settings;
-      #queue = /* @__PURE__ */ new Set();
-      #storage = [];
-      constructor(fs2, settings) {
-        this.#fs = fs2;
-        this.#settings = settings;
-      }
-      read(root) {
-        const directory = common.replacePathSegmentSeparator(root, this.#settings.pathSegmentSeparator);
-        this.#pushToQueue(directory, this.#settings.basePath);
-        this.#handleQueue();
-        return this.#storage;
-      }
-      #pushToQueue(directory, base) {
-        this.#queue.add({ directory, base });
-      }
-      #handleQueue() {
-        for (const item of this.#queue.values()) {
-          this.#handleDirectory(item.directory, item.base);
-        }
-      }
-      #handleDirectory(directory, base) {
-        try {
-          const entries = this.#fs.scandirSync(directory, this.#settings.fsScandirSettings);
-          for (const entry of entries) {
-            this.#handleEntry(entry, base);
-          }
-        } catch (error2) {
-          this.#handleError(error2);
-        }
-      }
-      #handleError(error2) {
-        if (common.isFatalError(this.#settings, error2)) {
-          throw error2;
-        }
-      }
-      #handleEntry(entry, base) {
-        const fullpath = entry.path;
-        if (base !== void 0) {
-          entry.path = common.joinPathSegments(base, entry.name, this.#settings.pathSegmentSeparator);
-        }
-        if (common.isAppliedFilter(this.#settings.entryFilter, entry)) {
-          this.#pushToStorage(entry);
-        }
-        if (entry.dirent.isDirectory() && common.isAppliedFilter(this.#settings.deepFilter, entry)) {
-          this.#pushToQueue(fullpath, base === void 0 ? void 0 : entry.path);
-        }
-      }
-      #pushToStorage(entry) {
-        this.#storage.push(entry);
-      }
-    };
-    exports.SyncReader = SyncReader;
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/readers/index.js
-var require_readers = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/readers/index.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      var desc = Object.getOwnPropertyDescriptor(m, k);
-      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-        desc = { enumerable: true, get: function() {
-          return m[k];
-        } };
-      }
-      Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      o[k2] = m[k];
-    }));
-    var __exportStar = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
-    };
-    Object.defineProperty(exports, "__esModule", { value: true });
-    __exportStar(require_async4(), exports);
-    __exportStar(require_sync4(), exports);
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/adapters/fs.js
-var require_fs4 = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/adapters/fs.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.FileSystemAdapter = void 0;
-    var fsScandir = require_out2();
-    var FileSystemAdapter = class {
-      scandir = fsScandir.scandir;
-      scandirSync = fsScandir.scandirSync;
-    };
-    exports.FileSystemAdapter = FileSystemAdapter;
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/walk.js
-var require_walk = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/walk.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.walk = walk2;
-    exports.walkSync = walkSync;
-    exports.walkStream = walkStream;
-    var providers_1 = require_providers();
-    var settings_1 = require_settings3();
-    var readers_1 = require_readers();
-    var fs_1 = require_fs4();
-    var fs2 = new fs_1.FileSystemAdapter();
-    function walk2(directory, options, callback) {
-      const optionsIsCallback = typeof options === "function";
-      const callback_ = optionsIsCallback ? options : callback;
-      const settings = optionsIsCallback ? getSettings() : getSettings(options);
-      const reader = new readers_1.AsyncReader(fs2, settings);
-      const provider = new providers_1.AsyncProvider(reader);
-      provider.read(directory, callback_);
-    }
-    function walkSync(directory, optionsOrSettings) {
-      const settings = getSettings(optionsOrSettings);
-      const reader = new readers_1.SyncReader(fs2, settings);
-      const provider = new providers_1.SyncProvider(reader);
-      return provider.read(directory);
-    }
-    function walkStream(directory, optionsOrSettings) {
-      const settings = getSettings(optionsOrSettings);
-      const reader = new readers_1.AsyncReader(fs2, settings);
-      const provider = new providers_1.StreamProvider(reader);
-      return provider.read(directory);
-    }
-    function getSettings(settingsOrOptions = {}) {
-      if (settingsOrOptions instanceof settings_1.Settings) {
-        return settingsOrOptions;
-      }
-      return new settings_1.Settings(settingsOrOptions);
-    }
-  }
-});
-
-// ../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/walk-promises.js
-var require_walk_promises = __commonJS({
-  "../../node_modules/.pnpm/@nodelib+fs.walk@3.0.1/node_modules/@nodelib/fs.walk/out/walk-promises.js"(exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.walk = void 0;
-    var util = __require("node:util");
-    var walk_1 = require_walk();
-    exports.walk = util.promisify(walk_1.walk);
   }
 });
 
@@ -20853,6 +19535,17 @@ function getMultilineInput(name, options) {
   }
   return inputs.map((input) => input.trim());
 }
+function getBooleanInput(name, options) {
+  const trueValue = ["true", "True", "TRUE"];
+  const falseValue = ["false", "False", "FALSE"];
+  const val = getInput(name, options);
+  if (trueValue.includes(val))
+    return true;
+  if (falseValue.includes(val))
+    return false;
+  throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}
+Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
+}
 function setFailed(message) {
   process.exitCode = ExitCode.Failure;
   error(message);
@@ -20865,13 +19558,8 @@ function info(message) {
 }
 
 // lib/index.ts
-var import_promises = __toESM(require_walk_promises(), 1);
 import * as fsp from "node:fs/promises";
-import path from "node:path";
-
-// lib/config.ts
-var import_micromustache = __toESM(require_micromustache(), 1);
-var import_uri_template_lite = __toESM(require_uri_template_lite(), 1);
+import path2 from "node:path";
 
 // ../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/core.js
 var _a;
@@ -21113,10 +19801,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path2) {
-  if (!path2)
+function getElementAtPath(obj, path3) {
+  if (!path3)
     return obj;
-  return path2.reduce((acc, key) => acc?.[key], obj);
+  return path3.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -21525,11 +20213,11 @@ function explicitlyAborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path2, issues) {
+function prefixIssues(path3, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path2);
+    iss.path.unshift(path3);
     return iss;
   });
 }
@@ -21676,16 +20364,16 @@ function flattenError(error2, mapper = (issue3) => issue3.message) {
 }
 function formatError(error2, mapper = (issue3) => issue3.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error3, path2 = []) => {
+  const processError = (error3, path3 = []) => {
     for (const issue3 of error3.issues) {
       if (issue3.code === "invalid_union" && issue3.errors.length) {
-        issue3.errors.map((issues) => processError({ issues }, [...path2, ...issue3.path]));
+        issue3.errors.map((issues) => processError({ issues }, [...path3, ...issue3.path]));
       } else if (issue3.code === "invalid_key") {
-        processError({ issues: issue3.issues }, [...path2, ...issue3.path]);
+        processError({ issues: issue3.issues }, [...path3, ...issue3.path]);
       } else if (issue3.code === "invalid_element") {
-        processError({ issues: issue3.issues }, [...path2, ...issue3.path]);
+        processError({ issues: issue3.issues }, [...path3, ...issue3.path]);
       } else {
-        const fullpath = [...path2, ...issue3.path];
+        const fullpath = [...path3, ...issue3.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue3));
         } else {
@@ -25133,6 +23821,10 @@ function superRefine(fn, params) {
 }
 
 // lib/config.ts
+var import_micromustache = __toESM(require_micromustache(), 1);
+var import_uri_template_lite = __toESM(require_uri_template_lite(), 1);
+import * as fs2 from "node:fs";
+import path from "node:path";
 function getInputDecorator(getter, judger) {
   return (_, context) => {
     const key = context.name;
@@ -25145,24 +23837,30 @@ function getInputDecorator(getter, judger) {
 }
 var Input = getInputDecorator(getInput, Boolean);
 var MultilineInput = getInputDecorator(getMultilineInput, (input) => input.length > 0);
-var ParsedReadme = object({
-  folder: string2(),
-  lang: string2()
-}).readonly();
-var Config = class {
-  @Input folder = ".";
-  @Input baseLocale = "";
+var BooleanInput = getInputDecorator(getBooleanInput, (input) => input !== void 0);
+var Config = class _Config {
+  /**项目文件夹 */
+  static root = process.cwd();
+  /**变成绝对路径 */
+  static toReal(filePath) {
+    return fs2.realpathSync(filePath);
+  }
+  /**变成绝对路径 */
+  static toReals(filePaths) {
+    return filePaths.map((n) => this.toReal(n));
+  }
+  /**变成相对路径 */
+  static toRelative(filePath) {
+    return path.relative(this.root, filePath);
+  }
+  @MultilineInput folders = ["."];
+  /**自述文件文件夹的绝对路径 */
+  realFolders = _Config.toReals(this.folders);
+  @Input repoReadme = "";
+  realRepoReadme = this.repoReadme === "" ? void 0 : _Config.toReal(this.repoReadme);
   @Input fileName = "README.{lang}.md";
   /**文件名的模式  */
-  fileTemplate = new import_uri_template_lite.default(`{folder}/${this.fileName}`);
-  /**解析文件名 */
-  parseFile(filePath) {
-    const result = ParsedReadme.safeParse(this.fileTemplate.match(filePath));
-    return result.data;
-  }
-  @MultilineInput ignoredFolderNames = ["node_modules"];
-  /**要被忽略的文件夹名称 */
-  ignoredFolderNamesSet = new Set(this.ignoredFolderNames);
+  fileTemplate = new import_uri_template_lite.default(`{folder}${this.fileName}`);
   @Input tag = "<!-- auto-readme-i18n-switcher-->";
   /**预先编译模板 */
   compile(template) {
@@ -25184,62 +23882,89 @@ var Config = class {
 };
 
 // lib/index.ts
-async function run() {
-  try {
-    const config2 = new Config();
-    const root = process.cwd();
-    process.chdir(config2.folder);
-    const cwd = process.cwd();
-    const files = await (0, import_promises.walk)(".", {
-      deepFilter({ name }) {
-        return !config2.ignoredFolderNamesSet.has(name);
-      },
-      followSymbolicLinks: true
-    });
+var ParsedReadme = object({
+  folder: string2(),
+  lang: string2()
+}).readonly();
+var Runner = class {
+  /**配置 */
+  config = new Config();
+  /**解析文件名 */
+  parseFile(filePath) {
+    const result = ParsedReadme.safeParse(
+      this.config.fileTemplate.match(filePath)
+    );
+    return result.data;
+  }
+  /**解析文件夹 */
+  async scanReadmes(folderPath) {
+    const files = await fsp.readdir(folderPath, { recursive: false });
     if (files.length === 0) {
-      info("No files.");
-      return;
+      info(`No files in "${Config.toRelative(folderPath)}"`);
     }
-    const repoReadmes = /* @__PURE__ */ new Set();
-    const readmes = files.flatMap(({ path: filePath }) => {
-      filePath = path.relative(cwd, filePath);
-      const data = config2.parseFile(filePath);
+    const readmes = files.flatMap((fileName) => {
+      const filePath = Config.toRelative(path2.join(folderPath, fileName));
+      const data = this.parseFile(filePath);
       if (!data) return [];
       const display = new Intl.DisplayNames(data.lang, { type: "language" }).of(data.lang) ?? data.lang;
       const readmeInfo = { ...data, filePath, display };
-      if (data.lang === config2.baseLocale) repoReadmes.add(readmeInfo);
       return [readmeInfo];
     });
     if (readmes.length === 0) {
-      info("No readme files.");
-      return;
+      info(`No readme files in "${Config.toRelative(folderPath)}"`);
     }
-    if (repoReadmes.size > 1) {
-      throw new Error("too many base locale file", { cause: repoReadmes });
-    }
-    for (const readme of readmes) {
-      const file = await fsp.readFile(readme.filePath);
+    return readmes;
+  }
+  /**获得各个 readme 的切换器 */
+  renderSwitchers(readmes) {
+    return readmes.map((readme) => ({
+      switcher: this.config.switcherBodyRenderer.render({
+        lines: readmes.map((scope) => (scope === readme ? this.config.switcherLineActiveRenderer : this.config.switcherLineRenderer).render(scope)).join(this.config.switcherSpliter)
+      }),
+      ...readme
+    }));
+  }
+  /**写入切换器 */
+  async writeToFiles(readmes) {
+    for (const { filePath, switcher } of readmes) {
+      const file = await fsp.readFile(filePath);
       const content = file.toString();
-      if (!content.includes(config2.tag)) continue;
-      const switcher = config2.switcherBodyRenderer.render({
-        lines: readmes.map((scope) => (scope === readme ? config2.switcherLineActiveRenderer : config2.switcherLineRenderer).render(scope)).join(config2.switcherSpliter)
-      });
-      const contentNew = content.replaceAll(config2.tag, switcher);
-      await fsp.writeFile(readme.filePath, contentNew);
-      info(`${readme.filePath} updated successfully.`);
-    }
-    for (const { filePath } of repoReadmes) {
-      fsp.copyFile(filePath, path.join(root, `README${path.extname(filePath)}`));
-    }
-  } catch (error2) {
-    if (error2 instanceof Error) {
-      setFailed(error2);
+      if (!content.includes(this.config.tag)) {
+        info(`${Config.toRelative(filePath)} has no tag`);
+        continue;
+      }
+      const contentNew = content.replaceAll(this.config.tag, switcher);
+      await fsp.writeFile(filePath, contentNew);
+      info(`${Config.toRelative(filePath)} updated successfully.`);
     }
   }
-}
-await run();
+  /**设置仓库说明文件 */
+  async copyRepoReadme() {
+    const { realRepoReadme } = this.config;
+    if (!realRepoReadme) return;
+    await fsp.copyFile(
+      realRepoReadme,
+      path2.join(Config.root, `README${path2.extname(realRepoReadme)}`)
+    );
+  }
+  async run() {
+    try {
+      for (const folder of this.config.realFolders) {
+        const readmes = await this.scanReadmes(folder);
+        await this.writeToFiles(this.renderSwitchers(readmes));
+      }
+      await this.copyRepoReadme();
+    } catch (error2) {
+      if (error2 instanceof Error) {
+        setFailed(error2);
+      }
+    }
+  }
+};
+await new Runner().run();
 export {
-  run
+  ParsedReadme,
+  Runner
 };
 /**
  * 配置相关
@@ -25258,12 +23983,6 @@ undici/lib/web/fetch/body.js:
 
 undici/lib/web/websocket/frame.js:
   (*! ws. MIT License. Einar Otto Stangvik <einaros@gmail.com> *)
-
-queue-microtask/index.js:
-  (*! queue-microtask. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> *)
-
-run-parallel/index.js:
-  (*! run-parallel. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> *)
 
 uri-template-lite/index.js:
   (*! litejs.com/MIT-LICENSE.txt *)

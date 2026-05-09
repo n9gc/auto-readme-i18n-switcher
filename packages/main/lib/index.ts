@@ -6,82 +6,113 @@
 declare module './index.ts';
 
 import * as core from '@actions/core';
-import { walk } from '@nodelib/fs.walk/promises';
 import * as fsp from 'node:fs/promises';
 import path from 'node:path';
+import * as z from 'zod';
 import { Config } from './config.ts';
 
-export interface ReadmeInfo {
+export const ParsedReadme = z.object({
+	folder: z.string(),
+	lang: z.string(),
+}).readonly();
+export type ParsedReadme = z.infer<typeof ParsedReadme>;
+
+export interface ReadmeInfo extends ParsedReadme {
 	readonly filePath: string;
 	readonly display: string;
-	readonly lang: string;
-	readonly folder: string;
+}
+export interface ReadmeInfoWithSwitcher extends ReadmeInfo {
+	readonly switcher: string;
 }
 
-export async function run() {
-	try {
-		const config = new Config();
-		const root = process.cwd();
+export class Runner {
+	/**配置 */
+	readonly config = new Config();
 
-		process.chdir(config.folder);
-		const cwd = process.cwd();
+	/**解析文件名 */
+	parseFile(filePath: string): ParsedReadme | undefined {
+		const result = ParsedReadme.safeParse(
+			this.config.fileTemplate.match(filePath),
+		);
+		return result.data;
+	}
 
-		const files = await walk('.', {
-			deepFilter({ name }) {
-				return !config.ignoredFolderNamesSet.has(name);
-			},
-			followSymbolicLinks: true,
-		});
+	/**解析文件夹 */
+	async scanReadmes(folderPath: string) {
+		// eslint-disable-next-line security/detect-non-literal-fs-filename
+		const files = await fsp.readdir(folderPath, { recursive: false });
 		if (files.length === 0) {
-			core.info('No files.');
-			return;
+			core.info(`No files in "${Config.toRelative(folderPath)}"`);
 		}
 
-		const repoReadmes = new Set<ReadmeInfo>();
-		const readmes = files.flatMap(({ path: filePath }) => {
-			filePath = path.relative(cwd, filePath);
-			const data = config.parseFile(filePath);
+		const readmes = files.flatMap(fileName => {
+			const filePath = Config.toRelative(path.join(folderPath, fileName));
+			const data = this.parseFile(filePath);
 			if (!data) return [];
 			const display = new Intl.DisplayNames(data.lang, { type: 'language' }).of(data.lang) ?? data.lang;
 			const readmeInfo: ReadmeInfo = { ...data, filePath, display };
-			if (data.lang === config.baseLocale) repoReadmes.add(readmeInfo);
 			return [readmeInfo];
 		});
 		if (readmes.length === 0) {
-			core.info('No readme files.');
-			return;
+			core.info(`No readme files in "${Config.toRelative(folderPath)}"`);
 		}
-		if (repoReadmes.size > 1) {
-			throw new Error('too many base locale file', { cause: repoReadmes });
-		}
+		return readmes;
+	}
 
-
-		for (const readme of readmes) {
-			// eslint-disable-next-line security/detect-non-literal-fs-filename
-			const file = await fsp.readFile(readme.filePath);
-			const content = file.toString();
-			if (!content.includes(config.tag)) continue;
-			const switcher = config.switcherBodyRenderer.render({
+	/**获得各个 readme 的切换器 */
+	renderSwitchers(readmes: readonly ReadmeInfo[]): ReadmeInfoWithSwitcher[] {
+		return readmes.map(readme => ({
+			switcher: this.config.switcherBodyRenderer.render({
 				lines: readmes
 					.map(scope => (scope === readme
-						? config.switcherLineActiveRenderer
-						: config.switcherLineRenderer).render(scope))
-					.join(config.switcherSpliter),
-			});
-			const contentNew = content.replaceAll(config.tag, switcher);
-			// eslint-disable-next-line security/detect-non-literal-fs-filename
-			await fsp.writeFile(readme.filePath, contentNew);
-			core.info(`${readme.filePath} updated successfully.`);
-		}
+						? this.config.switcherLineActiveRenderer
+						: this.config.switcherLineRenderer).render(scope))
+					.join(this.config.switcherSpliter),
+			}),
+			...readme,
+		}));
+	}
 
-		for (const { filePath } of repoReadmes) {
-			fsp.copyFile(filePath, path.join(root, `README${path.extname(filePath)}`));
+	/**写入切换器 */
+	async writeToFiles(readmes: readonly ReadmeInfoWithSwitcher[]) {
+		for (const { filePath, switcher } of readmes) {
+			// eslint-disable-next-line security/detect-non-literal-fs-filename
+			const file = await fsp.readFile(filePath);
+			const content = file.toString();
+			if (!content.includes(this.config.tag)) {
+				core.info(`${Config.toRelative(filePath)} has no tag`);
+				continue;
+			}
+			const contentNew = content.replaceAll(this.config.tag, switcher);
+			// eslint-disable-next-line security/detect-non-literal-fs-filename
+			await fsp.writeFile(filePath, contentNew);
+			core.info(`${Config.toRelative(filePath)} updated successfully.`);
 		}
-	} catch (error) {
-		if (error instanceof Error) {
-			core.setFailed(error);
+	}
+
+	/**设置仓库说明文件 */
+	async copyRepoReadme() {
+		const { realRepoReadme } = this.config;
+		if (!realRepoReadme) return;
+		await fsp.copyFile(
+			realRepoReadme,
+			path.join(Config.root, `README${path.extname(realRepoReadme)}`),
+		);
+	}
+
+	async run() {
+		try {
+			for (const folder of this.config.realFolders) {
+				const readmes = await this.scanReadmes(folder);
+				await this.writeToFiles(this.renderSwitchers(readmes));
+			}
+			await this.copyRepoReadme();
+		} catch (error) {
+			if (error instanceof Error) {
+				core.setFailed(error);
+			}
 		}
 	}
 }
 
-await run();
+await new Runner().run();
