@@ -34324,7 +34324,9 @@ function replaceZone(markdown, tag, content3) {
       if (startOffset === void 0 || endOffset === void 0) return [];
       const starter = markdown.slice(0, startOffset);
       const ender = markdown.slice(endOffset);
-      resolve(`${starter}${content3}${ender}`);
+      resolve(`${starter}
+${content3}
+${ender}`);
       return [];
     });
     remark().use(() => joiner).process(markdown).then(() => resolve(markdown));

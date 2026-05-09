@@ -19,7 +19,7 @@ export function replaceZone(markdown: string, tag: string, content: string) {
 			const starter = markdown.slice(0, startOffset);
 			const ender = markdown.slice(endOffset);
 
-			resolve(`${starter}${content}${ender}`);
+			resolve(`${starter}\n${content}\n${ender}`);
 			return [];
 		});
 		remark()
