@@ -21,7 +21,7 @@ on:
         branches: ['master']
 
 permissions:
-    id-token: write
+    contents: write
 
 jobs:
     switcher:
@@ -39,16 +39,13 @@ jobs:
                       .github
                   repoReadme: '.github/README.en.md'
 
-            - name: Save changes
-              if: steps.switcher.outputs.switcher_changed == 'true'
-              run: |
-                  git add .
-
             - name: Push Branch
               if: steps.switcher.outputs.switcher_changed == 'true'
               uses: actions-js/push@master
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: master
+                  message: 'doc: Update README switcher'
 ```
 
 之后在你每次向 master 分支的 push 和 PR 的时候，你在 `.github` 文件夹里的各个例如 `README.en.md` `README.zh.md` 之类的说明文件里的 `<!-- auto-readme-i18n-switcher start -->` 和 `<!-- auto-readme-i18n-switcher end -->` 之间的内容就都会被替换为多语言切换器了，并且 `.github/README.en.md` 还会变为项目的自述文件。

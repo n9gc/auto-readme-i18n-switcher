@@ -21,7 +21,7 @@ on:
         branches: ['master']
 
 permissions:
-    id-token: write
+    contents: write
 
 jobs:
     switcher:
@@ -39,16 +39,13 @@ jobs:
                       .github
                   repoReadme: '.github/README.en.md'
 
-            - name: Save changes
-              if: steps.switcher.outputs.switcher_changed == 'true'
-              run: |
-                  git add .
-
             - name: Push Branch
               if: steps.switcher.outputs.switcher_changed == 'true'
               uses: actions-js/push@master
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: master
+                  message: 'doc: Update README switcher'
 ```
 
 これにより、master ブランチへの push や PR のたびに、`.github` フォルダ内の `README.en.md` や `README.zh.md` といった各説明ファイルにある `<!-- auto-readme-i18n-switcher start -->` と `<!-- auto-readme-i18n-switcher end -->` の間の内容が、多言語スイッチャーに置き換えられます。また、`.github/README.en.md` がプロジェクトの README になります。

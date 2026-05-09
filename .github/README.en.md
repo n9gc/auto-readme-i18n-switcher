@@ -21,7 +21,7 @@ on:
         branches: ['master']
 
 permissions:
-    id-token: write
+    contents: write
 
 jobs:
     switcher:
@@ -39,16 +39,13 @@ jobs:
                       .github
                   repoReadme: '.github/README.en.md'
 
-            - name: Save changes
-              if: steps.switcher.outputs.switcher_changed == 'true'
-              run: |
-                  git add .
-
             - name: Push Branch
               if: steps.switcher.outputs.switcher_changed == 'true'
               uses: actions-js/push@master
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: master
+                  message: 'doc: Update README switcher'
 ```
 
 After that, every time you push to the master branch or create a pull request, the content between `<!-- auto-readme-i18n-switcher start -->` and `<!-- auto-readme-i18n-switcher end -->` in each README file (such as `README.en.md`, `README.zh.md`, etc.) inside your `.github` folder will be replaced with the multilingual switcher, and `.github/README.en.md` will also become the project's README file.
