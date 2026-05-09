@@ -1,6 +1,7 @@
 # README 多言語スイッチャーのジェネレーター
 
-<!-- auto-readme-i18n-switcher-->
+<!-- auto-readme-i18n-switcher start -->
+<!-- auto-readme-i18n-switcher end -->
 
 このジェネレーターは、上にあるような README ファイルの多言語スイッチャーを生成するためのものです。
 

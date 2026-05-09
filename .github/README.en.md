@@ -1,6 +1,7 @@
 # README Multilingual Switcher Generator
 
-<!-- auto-readme-i18n-switcher-->
+<!-- auto-readme-i18n-switcher start -->
+<!-- auto-readme-i18n-switcher end -->
 
 This generator is used to generate the multilingual switcher for the README file, which is the one above this sentence.
 
