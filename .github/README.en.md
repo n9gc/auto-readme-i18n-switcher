@@ -1,7 +1,7 @@
 # README Multilingual Switcher Generator
 
 <!-- auto-readme-i18n-switcher start -->
-| English | [日本語](.github/README.ja.md) | [中文](.github/README.zh.md) |
+| English | [日本語](/.github/README.ja.md) | [中文](/.github/README.zh.md) |
 <!-- auto-readme-i18n-switcher end -->
 
 This generator is used to generate the multilingual switcher for the README file, which is the one above this sentence.
